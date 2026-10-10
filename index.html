@@ -36,7 +36,7 @@
         <label class="block text-xs font-bold text-amber-900 mb-1 flex items-center gap-1.5">
           <i class="fas fa-list-check text-amber-600"></i> విభాగం ఎంచుకోండి (Category) <span class="text-red-500">*</span>
         </label>
-        <select id="categorySelect" onchange="refreshNotice()" class="w-full border-2 border-amber-300 rounded-xl p-2.5 text-xs font-bold text-slate-800 bg-white outline-none focus:border-indigo-600">
+        <select id="categorySelect" onchange="syncNoticeMessage()" class="w-full border-2 border-amber-300 rounded-xl p-2.5 text-xs font-bold text-slate-800 bg-white outline-none focus:border-indigo-600">
           <option value="" selected>-- ఎంచుకోండి (Select Category) --</option>
           <option value="Mutations">1. Mutations (మ్యుటేషన్స్)</option>
           <option value="PGRS">2. PGRS (ప్రజా సమస్యల పరిష్కార వేదిక)</option>
@@ -47,7 +47,7 @@
       
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">గ్రహీత పేరు (VRO / Person) <span class="text-red-500">*</span></label>
-        <input type="text" id="name" oninput="refreshNotice()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: రాజేష్">
+        <input type="text" id="name" oninput="syncNoticeMessage()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: రాజేష్">
       </div>
 
       <!-- Phone Number with +91 Prefix -->
@@ -61,7 +61,7 @@
 
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">డాక్యుమెంట్ / రిఫరెన్స్ నంబర్ <span class="text-red-500">*</span></label>
-        <input type="text" id="docName" oninput="refreshNotice()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 నంబర్ / అర్జీ వివరాలు">
+        <input type="text" id="docName" oninput="syncNoticeMessage()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 నంబర్ / అర్జీ వివరాలు">
       </div>
 
       <!-- Camera & PDF Attachment Section -->
@@ -91,21 +91,21 @@
       <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
         <div>
           <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు రోజులు</label>
-          <select id="daysSelect" onchange="applySelectedDays(this.value)" class="w-full border rounded-lg p-2 text-xs bg-white outline-none">
+          <select id="daysSelect" onchange="onDaysDropdownChange(this.value)" class="w-full border rounded-lg p-2 text-xs bg-white outline-none">
             <option value="1">1 రోజు</option>
             <option value="2">2 రోజులు</option>
             <option value="7">7 రోజులు</option>
-            <option value="15">15 రోజులు</option>
+            <option value="15" selected>15 రోజులు</option>
             <option value="30">30 రోజులు</option>
           </select>
         </div>
         <div>
           <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు తేదీ (Due Date)</label>
           <div class="flex items-center gap-1">
-            <input type="text" id="dueDateField" value="17/10/2026" oninput="refreshNotice()" class="w-full border rounded-lg p-1.5 text-xs bg-white font-bold outline-none focus:border-indigo-600 text-center">
+            <input type="text" id="dueDateField" value="25/10/2026" oninput="syncNoticeMessage()" class="w-full border rounded-lg p-1.5 text-xs bg-white font-bold outline-none focus:border-indigo-600 text-center">
             <label class="cursor-pointer bg-indigo-100 hover:bg-indigo-200 text-indigo-700 p-2 rounded-lg border border-indigo-300 flex items-center justify-center">
               <i class="fas fa-calendar-alt text-xs"></i>
-              <input type="date" id="calendarPicker" onchange="calendarPicked(this.value)" class="hidden">
+              <input type="date" id="calendarPicker" onchange="calendarDateSelected(this.value)" class="hidden">
             </label>
           </div>
         </div>
@@ -120,7 +120,7 @@
 
 మీకు *[రిఫరెన్స్ వివరాలు]* సంబంధించిన ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.
 
-దయచేసి దీనిని విచారించి *7 రోజుల్లోగా* (చివరి తేదీ: *17/10/2026*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.
+దయచేసి దీనిని విచారించి *15 రోజుల్లోగా* (చివరి తేదీ: *25/10/2026*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.
 
 ఇట్లు,
 *తహసీల్దార్ కార్యాలయం,*
@@ -164,35 +164,35 @@
       document.getElementById('fileBadge').classList.add('hidden');
     }
 
-    // రోజులు మారినప్పుడు ఖచ్చితమైన తేదీ (DD/MM/YYYY) సెట్ చేయడం
-    function applySelectedDays(days) {
+    // డ్రాప్‌డౌన్ రోజులు మార్చిన వెంటనే తేదీ బాక్స్‌లో DD/MM/YYYY మారడం
+    function onDaysDropdownChange(daysCount) {
       const d = new Date();
-      d.setDate(d.getDate() + Number(days));
+      d.setDate(d.getDate() + Number(daysCount));
       const dd = String(d.getDate()).padStart(2, '0');
       const mm = String(d.getMonth() + 1).padStart(2, '0');
       const yyyy = d.getFullYear();
       document.getElementById('dueDateField').value = `${dd}/${mm}/${yyyy}`;
-      refreshNotice();
+      syncNoticeMessage();
     }
 
-    // క్యాలెండర్ నుండి ఎంచుకున్నప్పుడు
-    function calendarPicked(dateStr) {
-      if (dateStr) {
-        const parts = dateStr.split('-');
+    // క్యాలెండర్ ఐకాన్ నొక్కినప్పుడు
+    function calendarDateSelected(dateVal) {
+      if (dateVal) {
+        const parts = dateVal.split('-');
         if (parts.length === 3) {
           document.getElementById('dueDateField').value = `${parts[2]}/${parts[1]}/${parts[0]}`;
-          refreshNotice();
+          syncNoticeMessage();
         }
       }
     }
 
-    // మెసేజ్ ప్రివ్యూ రిఫ్రెష్ చేయడం
-    function refreshNotice() {
+    // మెసేజ్ ప్రివ్యూ సింక్ చేయడం
+    function syncNoticeMessage() {
       const category = document.getElementById('categorySelect').value;
       const name = document.getElementById('name').value.trim() || '[గ్రహీత పేరు]';
       const doc = document.getElementById('docName').value.trim() || '[రిఫరెన్స్ వివరాలు]';
       const dateVal = document.getElementById('dueDateField').value.trim();
-      const days = document.getElementById('daysSelect').value || '7';
+      const days = document.getElementById('daysSelect').value || '15';
 
       const catText = category ? ` (${category})` : '';
 
@@ -232,7 +232,7 @@
       const msg = document.getElementById('customMsg').value;
 
       if (!category) {
-        alert('దయచేసి విభాగం (Category) ను ఎంచుకోండి!');
+        alert('దయచేసి ముందుగా విభాగం (Category) ను ఎంచుకోండి!');
         document.getElementById('categorySelect').focus();
         return;
       }
@@ -274,7 +274,7 @@
         fileType: fileType,
         sentDate: sentDateFormatted,
         dueDate: dueDateVal,
-        daysAllowed: document.getElementById('daysSelect').value || '7',
+        daysAllowed: document.getElementById('daysSelect').value || '15',
         status: 'PENDING'
       };
 
@@ -282,13 +282,14 @@
       list.unshift(record);
       saveEntries(list);
 
+      // Reset
       document.getElementById('name').value = '';
       document.getElementById('phone').value = '';
       document.getElementById('docName').value = '';
       document.getElementById('categorySelect').value = '';
       removeFile();
-      document.getElementById('daysSelect').value = '7';
-      applySelectedDays(7);
+      document.getElementById('daysSelect').value = '15';
+      onDaysDropdownChange(15);
 
       if (pickedFile && navigator.canShare && navigator.canShare({ files: [pickedFile] })) {
         try {
@@ -410,12 +411,6 @@
               if (clean.length > 10) clean = clean.slice(-10);
               document.getElementById('phone').value = clean;
             }
-            refreshNotice();
+            syncNoticeMessage();
           }
-        } catch (ex) {}
-      }
-    }
-
-    // మొదటిసారి రన్ అవ్వడం
-    applySelectedDays(7);
-    renderDashboard(
+        } 
