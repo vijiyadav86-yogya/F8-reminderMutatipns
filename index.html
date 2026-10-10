@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tahsildar Office, Peddavaduguru - Tracker</title>
+  <title>తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు - F-8 ట్రాకర్</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -16,7 +16,7 @@
         <i class="fas fa-landmark text-2xl text-amber-400"></i>
         <div>
           <h1 class="text-base font-bold">తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు</h1>
-          <p class="text-indigo-200 text-xs">F-8 మ్యుటేషన్ & PDF అధికారిక రిమైండర్</p>
+          <p class="text-indigo-200 text-xs">F-8 మ్యుటేషన్ & అధికారిక నోటీస్ ట్రాకర్</p>
         </div>
       </div>
     </div>
@@ -25,14 +25,14 @@
     <div class="bg-white p-5 rounded-2xl shadow border border-slate-200 space-y-3">
       <div class="flex justify-between items-center">
         <h2 class="text-sm font-bold text-slate-700">కొత్త ఎంట్రీ & నోటీస్</h2>
-        <button type="button" onclick="pickContact()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold px-2 py-1 rounded-lg">
+        <button type="button" onclick="pickContact()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold px-2.5 py-1 rounded-lg">
           <i class="fas fa-address-book"></i> కాంటాక్ట్
         </button>
       </div>
       
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">గ్రహీత పేరు (VRO / Person)</label>
-        <input type="text" id="name" oninput="updatePreviewMessage()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="రాము">
+        <input type="text" id="name" oninput="updatePreviewMessage()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: రాజేష్ (VRO)">
       </div>
 
       <div>
@@ -42,10 +42,10 @@
 
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">డాక్యుమెంట్ / F-8 నంబర్</label>
-        <input type="text" id="docName" oninput="updatePreviewMessage()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="F-8 Mutation No. 123/2026">
+        <input type="text" id="docName" oninput="updatePreviewMessage()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 Mutation No. 123/2026">
       </div>
 
-      <!-- PDF File Upload Box -->
+      <!-- PDF Selection -->
       <div class="bg-indigo-50/60 p-3 rounded-xl border border-indigo-200">
         <label class="block text-xs font-bold text-indigo-900 mb-1">
           <i class="fas fa-file-pdf text-red-500"></i> PDF డాక్యుమెంట్ ఎంచుకోండి
@@ -58,6 +58,7 @@
         <div>
           <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు రోజులు</label>
           <select id="daysSelect" onchange="handleDaysChange()" class="w-full border rounded-lg p-1.5 text-xs bg-white">
+            <option value="1">1 రోజు</option>
             <option value="2">2 రోజులు</option>
             <option value="7">7 రోజులు</option>
             <option value="15" selected>15 రోజులు</option>
@@ -70,28 +71,22 @@
         </div>
       </div>
 
-      <!-- Preview -->
+      <!-- Preview Box -->
       <div>
-        <label class="block text-xs font-semibold mb-1 text-slate-600">అధికారిక మెసేజ్ ప్రివ్యూ:</label>
-        <textarea id="customMsg" rows="6" class="w-full border rounded-xl p-2.5 text-xs font-sans text-slate-700 bg-slate-50 leading-relaxed" readonly></textarea>
+        <label class="block text-xs font-semibold mb-1 text-slate-600">వెళ్లే అధికారిక నోటీస్ మెసేజ్:</label>
+        <textarea id="customMsg" rows="6" class="w-full border rounded-xl p-2.5 text-xs font-sans text-slate-700 bg-slate-50 leading-relaxed outline-none" readonly></textarea>
       </div>
 
-      <!-- Buttons -->
-      <div class="space-y-2">
-        <button type="button" onclick="handleSendWithPdf()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow flex items-center justify-center gap-2">
-          <i class="fab fa-whatsapp text-lg"></i> PDF & నోటీస్ షేర్ చేయి
-        </button>
-        <button type="button" onclick="handleSendTextDirect()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2">
-          <i class="fas fa-paper-plane"></i> డైరెక్ట్ టెక్స్ట్ మెసేజ్ పంపు (No PDF)
-        </button>
-      </div>
+      <button type="button" onclick="handleSendOfficial()" class="w-full bg-emerald-600 active:bg-emerald-700 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-sm shadow-md flex items-center justify-center gap-2">
+        <i class="fab fa-whatsapp text-xl"></i> వాట్సాప్‌లో అధికారిక నోటీస్ పంపు
+      </button>
     </div>
 
     <!-- Records Dashboard -->
     <div class="bg-white p-5 rounded-2xl shadow border border-slate-200">
       <div class="flex justify-between items-center mb-3">
         <h2 class="text-sm font-bold text-slate-700">ట్రాకింగ్ రికార్డులు</h2>
-        <span id="pendingCount" class="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-bold">0 Pending</span>
+        <span id="pendingCount" class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-bold">0 Pending</span>
       </div>
       <div id="recordList" class="space-y-3"></div>
     </div>
@@ -114,7 +109,7 @@
           }
         } catch (ex) {}
       } else {
-        alert("Contact Picker support ledu. Direct ga type cheyandi.");
+        alert("కాంటాక్ట్ సెలెక్టర్ సపోర్ట్ లేదు. నంబర్ టైప్ చేయండి.");
       }
     }
 
@@ -137,7 +132,7 @@
       updatePreviewMessage();
     }
 
-    function getOfficialMessage(name, docName, dueDateVal) {
+    function buildOfficialMessage(name, docName, dueDateVal) {
       let formattedDate = dueDateVal;
       let diffDays = 15;
       if (dueDateVal) {
@@ -146,14 +141,14 @@
         const sentDate = new Date();
         diffDays = Math.max(1, Math.ceil((d - sentDate) / (1000 * 60 * 60 * 24)));
       }
-      return `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${docName}* సంబంధించిన ఫైల్ విచారణ నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${diffDays} రోజుల్లోగా* (చివరి తేదీ: *${formattedDate}*) మీ నివేదికను (Report) సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
+      return `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${docName}* సంబంధించిన ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${diffDays} రోజుల్లోగా* (చివరి తేదీ: *${formattedDate}*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
     }
 
     function updatePreviewMessage() {
       const name = document.getElementById('name').value.trim() || '[గ్రహీత పేరు]';
       const docName = document.getElementById('docName').value.trim() || '[డాక్యుమెంట్ నంబర్]';
       const dueDateVal = document.getElementById('dueDateInput').value;
-      document.getElementById('customMsg').value = getOfficialMessage(name, docName, dueDateVal);
+      document.getElementById('customMsg').value = buildOfficialMessage(name, docName, dueDateVal);
     }
 
     function getEntries() {
@@ -165,7 +160,7 @@
       render();
     }
 
-    function validateAndSave() {
+    function handleSendOfficial() {
       const name = document.getElementById('name').value.trim();
       let phone = document.getElementById('phone').value.trim();
       const docName = document.getElementById('docName').value.trim();
@@ -174,14 +169,14 @@
       const file = fileInput.files[0];
 
       if (!name || !phone || !docName || !dueDateVal) {
-        alert('Peru, Phone, Document mariyu Thedi enter cheyandi!');
-        return null;
+        alert('దయచేసి పేరు, ఫోన్ నంబర్, డాక్యుమెంట్ పేరు మరియు గడువు తేదీని నమోదు చేయండి!');
+        return;
       }
 
       phone = phone.replace(/[^0-9]/g, '');
       if (phone.length < 10) {
-        alert('10 digits Mobile Number ivvandi!');
-        return null;
+        alert('సరైన 10 అంకెల మొబైల్ నంబర్ ఇవ్వండి!');
+        return;
       }
       if (phone.length === 10) phone = '91' + phone;
 
@@ -206,38 +201,18 @@
       list.unshift(record);
       saveEntries(list);
 
-      const officialMsg = getOfficialMessage(name, docName, dueDateVal);
-      return { phone, file, officialMsg };
-    }
+      const msg = buildOfficialMessage(name, docName, dueDateVal);
 
-    async function handleSendWithPdf() {
-      const data = validateAndSave();
-      if (!data) return;
+      // ఫారమ్ రీసెట్
+      document.getElementById('name').value = '';
+      document.getElementById('phone').value = '';
+      document.getElementById('docName').value = '';
+      fileInput.value = '';
+      initDueDate();
 
-      // Copy message to clipboard automatically
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(data.officialMsg);
-      }
-
-      if (data.file && navigator.canShare && navigator.canShare({ files: [data.file] })) {
-        try {
-          await navigator.share({
-            files: [data.file],
-            title: 'Tahsildar Office Peddavaduguru',
-            text: data.officialMsg
-          });
-          alert('Tahsildar text copy aindi! Okavela chat lo text raakapothe direct ga PASTE cheyandi.');
-          return;
-        } catch (e) {}
-      }
-
-      window.location.href = `whatsapp://send?phone=${data.phone}&text=${encodeURIComponent(data.officialMsg)}`;
-    }
-
-    function handleSendTextDirect() {
-      const data = validateAndSave();
-      if (!data) return;
-      window.location.href = `whatsapp://send?phone=${data.phone}&text=${encodeURIComponent(data.officialMsg)}`;
+      // నేరుగా వాట్సాప్ చాట్ బాక్స్‌లోకి పూర్తి అధికారిక టెక్స్ట్‌తో ఓపెన్ అవుతుంది
+      const waUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`;
+      window.location.href = waUrl;
     }
 
     function markReturned(id) {
@@ -246,12 +221,12 @@
     }
 
     function sendReminder(phone, name, docName, dueDateStr) {
-      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు*\n\n*అత్యవసర రిమైండర్:*\n${name} గారు, మీకు ఇచ్చిన *${docName}* విచారణ గడువు తేదీ (*${dueDateStr}*) ముగిసినది.\n\nదయచేసి ఎలాంటి జాప్యం లేకుండా వెంటనే విచారణ నివేదికను సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు.*`;
-      window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(text)}`;
+      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n*అత్యవసర రిమైండర్:*\n${name} గారు, మీకు ఇచ్చిన *${docName}* విచారణ గడువు తేదీ (*${dueDateStr}*) ముగిసినది.\n\nమీరు నివేదిక సమర్పించడంలో ఆలస్యం (Delay) చేస్తున్నారు. దయచేసి ఎలాంటి జాప్యం లేకుండా వెంటనే విచారణ నివేదికను కార్యాలయానికి సమర్పించవలసిందిగా కోరడమైనది.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
+      window.location.href = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}`;
     }
 
     function deleteRecord(id) {
-      if (confirm('Delete cheyalani anukuntunnara?')) {
+      if (confirm('ఈ రికార్డును తొలగించాలనుకుంటున్నారా?')) {
         saveEntries(getEntries().filter(item => item.id !== id));
       }
     }
@@ -264,7 +239,7 @@
       document.getElementById('pendingCount').innerText = `${list.filter(item => item.status === 'PENDING').length} Pending`;
 
       if (list.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Inka elanti records levu.</p>';
+        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">ఇంకా ఎలాంటి రికార్డులు లేవు.</p>';
         return;
       }
 
@@ -277,13 +252,15 @@
                 <p class="font-bold text-sm text-slate-800">${item.name}</p>
                 <p class="text-slate-500 font-mono text-[11px]">${item.phone}</p>
                 <p class="text-indigo-700 font-semibold mt-0.5">${item.docName}</p>
+                <p class="text-slate-400 text-[10px] mt-0.5"><i class="fas fa-paperclip"></i> ${item.fileName}</p>
               </div>
-              <div>
+              <div class="flex flex-col items-end gap-1">
                 ${item.status === 'RETURNED' 
                   ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold text-[10px]">✓ రిపోర్ట్ వచ్చింది</span>' 
                   : isOverdue 
                     ? '<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold text-[10px] animate-pulse">Overdue (ఆలస్యం)</span>' 
                     : '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold text-[10px]">పెండింగ్</span>'}
+                <span class="text-[10px] text-slate-400 font-medium">గడువు: ${item.daysAllowed} రోజులు</span>
               </div>
             </div>
             <div class="flex justify-between text-slate-500 border-t pt-2 text-[11px]">
@@ -292,12 +269,24 @@
             </div>
             <div class="flex gap-2 pt-1 border-t">
               ${item.status === 'PENDING' ? `
-                <button onclick="sendReminder('${item.phone}', '${item.name}', '${item.docName}', '${item.dueDate}')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center">
+                <button onclick="sendReminder('${item.phone}', '${item.name}', '${item.docName}', '${item.dueDate}')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
                   🔔 రిమైండ్ పంపు
                 </button>
-                <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center">
+                <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
                   ✓ రిటర్న్ వచ్చింది
                 </button>
               ` : '<span class="flex-1 text-slate-400 py-1 text-center font-bold">పూర్తయింది</span>'}
-              <button onclick="deleteRecord(${item.id})"
-              
+              <button onclick="deleteRecord(${item.id})" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    initDueDate();
+    render();
+  </script>
+</body>
+</html>
