@@ -15,14 +15,20 @@
       <h1 class="text-xl font-bold flex items-center gap-2">
         <i class="fas fa-file-invoice"></i> F-8 రిమైండర్ ట్రాకర్
       </h1>
-      <p class="text-indigo-200 text-xs mt-1">PDF అప్‌లోడ్, కస్టమ్ గడువు & వాట్సాప్ రిమైండర్</p>
+      <p class="text-indigo-200 text-xs mt-1">కాంటాక్ట్ సెలెక్టర్, PDF అప్‌లోడ్ & కస్టమ్ గడువు</p>
     </div>
 
     <!-- Entry Form -->
     <div class="bg-white p-5 rounded-2xl shadow border border-slate-200 space-y-3">
-      <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
-        <i class="fas fa-plus-circle text-indigo-600"></i> కొత్త ఎంట్రీ & PDF షేర్
-      </h2>
+      <div class="flex justify-between items-center">
+        <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+          <i class="fas fa-plus-circle text-indigo-600"></i> కొత్త ఎంట్రీ & PDF షేర్
+        </h2>
+        <!-- Phone Contact Picker Button -->
+        <button type="button" onclick="pickContact()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-sm">
+          <i class="fas fa-address-book"></i> కాంటాక్ట్ ఎంచుకోండి
+        </button>
+      </div>
       
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">గ్రహీత పేరు (Person Name)</label>
@@ -87,6 +93,35 @@
   </div>
 
   <script>
+    // కాంటాక్ట్ పిక్కర్ ఫంక్షన్ (ఫోన్ కాంటాక్ట్స్ ఓపెన్ చేయడానికి)
+    async function pickContact() {
+      if ('contacts' in navigator && 'ContactsManager' in window) {
+        try {
+          const props = ['name', 'tel'];
+          const opts = { multiple: false };
+          const contacts = await navigator.contacts.select(props, opts);
+          if (contacts.length > 0) {
+            const contact = contacts[0];
+            if (contact.name && contact.name[0]) {
+              document.getElementById('name').value = contact.name[0];
+            }
+            if (contact.tel && contact.tel[0]) {
+              // 10 అంకెల నంబర్ క్లీన్ చేయడం
+              let rawNum = contact.tel[0].replace(/[^0-9]/g, '');
+              if (rawNum.length > 10) {
+                rawNum = rawNum.slice(-10);
+              }
+              document.getElementById('phone').value = rawNum;
+            }
+          }
+        } catch (ex) {
+          console.log("Contact selection closed");
+        }
+      } else {
+        alert("మీ బ్రౌజర్ నేరుగా కాంటాక్ట్ బుక్ ఓపెన్ చేయడాన్ని సపోర్ట్ చేయదు (Chrome లో బెస్ట్ సపోర్ట్ ఉంటుంది). దయచేసి పేరు, నంబర్ నేరుగా టైప్ చేయండి.");
+      }
+    }
+
     function formatDateYMD(d) {
       return d.toISOString().split('T')[0];
     }
@@ -137,13 +172,13 @@
       const file = fileInput.files[0];
 
       if (!name || !phone || !docName || !dueDateVal) {
-        alert('Dayachesi Peru, Phone Number, Document Peru mariyu Gaduvu Thedi enter cheyandi!');
+        alert('దయచేసి పేరు, ఫోన్ నంబర్, డాక్యుమెంట్ పేరు మరియు గడువు తేదీని నమోదు చేయండి!');
         return;
       }
 
       phone = phone.replace(/[^0-9]/g, '');
       if (phone.length < 10) {
-        alert('Saraina 10 ankela Mobile Number ivvandi!');
+        alert('సరైన 10 అంకెల మొబైల్ నంబర్ ఇవ్వండి!');
         return;
       }
       if (phone.length === 10) phone = '91' + phone;
@@ -195,7 +230,6 @@
         }
       }
 
-      // WhatsApp URL fallback
       fileInput.value = '';
       window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(messageText)}`;
     }
@@ -211,7 +245,7 @@
     }
 
     function deleteRecord(id) {
-      if (confirm('Ee record ni delete cheyalani anukuntunnara?')) {
+      if (confirm('ఈ రికార్డును తీసివేయాలనుకుంటున్నారా?')) {
         const list = getEntries().filter(item => item.id !== id);
         saveEntries(list);
       }
@@ -226,7 +260,7 @@
       document.getElementById('pendingCount').innerText = `${pendingCount} Pending`;
 
       if (list.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Inka elanti records levu.</p>';
+        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">ఇంకా ఎలాంటి రికార్డులు లేవు.</p>';
         return;
       }
 
@@ -248,26 +282,26 @@
                   : isOverdue 
                     ? '<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold text-[10px] animate-pulse">Overdue (Delay)</span>' 
                     : '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold text-[10px]">Pending</span>'}
-                <span class="text-[10px] text-slate-400 font-medium">Gaduvu: ${item.daysAllowed} Days</span>
+                <span class="text-[10px] text-slate-400 font-medium">గడువు: ${item.daysAllowed} రోజులు</span>
               </div>
             </div>
 
             <div class="flex justify-between text-slate-500 border-t pt-2 text-[11px]">
-              <span>Pampinadi: <b>${item.sentDate}</b></span>
-              <span>Chivari Thedi: <b class="${isOverdue ? 'text-red-600 font-bold' : ''}">${item.dueDate}</b></span>
+              <span>పంపినది: <b>${item.sentDate}</b></span>
+              <span>చివరి తేదీ: <b class="${isOverdue ? 'text-red-600 font-bold' : ''}">${item.dueDate}</b></span>
             </div>
 
             <div class="flex gap-2 pt-1 border-t">
               ${item.status === 'PENDING' ? `
                 <button onclick="sendReminder('${item.phone}', '${item.name}', '${item.docName}', '${item.dueDate}')" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
-                  🔔 Remind
+                  🔔 రిమైండ్
                 </button>
                 <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
-                  ✓ Return Vachindi
+                  ✓ రిటర్న్ వచ్చింది
                 </button>
               ` : `
                 <button disabled class="flex-1 bg-slate-200 text-slate-400 font-bold py-1.5 rounded-lg text-center cursor-not-allowed">
-                  Purtayyindi
+                  పూర్తయింది
                 </button>
               `}
               <button onclick="deleteRecord(${item.id})" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg hover:bg-red-100 hover:text-red-600">
