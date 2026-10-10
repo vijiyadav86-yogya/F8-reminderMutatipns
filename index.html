@@ -36,7 +36,7 @@
         <label class="block text-xs font-bold text-amber-900 mb-1 flex items-center gap-1.5">
           <i class="fas fa-list-check text-amber-600"></i> విభాగం ఎంచుకోండి (Category) <span class="text-red-500">*</span>
         </label>
-        <select id="categorySelect" onchange="syncMsg()" class="w-full border-2 border-amber-300 rounded-xl p-2.5 text-xs font-bold text-slate-800 bg-white outline-none focus:border-indigo-600">
+        <select id="categorySelect" onchange="syncNoticeMessage()" class="w-full border-2 border-amber-300 rounded-xl p-2.5 text-xs font-bold text-slate-800 bg-white outline-none focus:border-indigo-600">
           <option value="" selected>-- ఎంచుకోండి (Select Category) --</option>
           <option value="Mutations">1. Mutations (మ్యుటేషన్స్)</option>
           <option value="PGRS">2. PGRS (ప్రజా సమస్యల పరిష్కార వేదిక)</option>
@@ -47,7 +47,7 @@
       
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">గ్రహీత పేరు (VRO / Person) <span class="text-red-500">*</span></label>
-        <input type="text" id="name" oninput="syncMsg()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: రాజేష్">
+        <input type="text" id="name" oninput="syncNoticeMessage()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: రాజేష్">
       </div>
 
       <!-- Phone Number with +91 Prefix -->
@@ -61,7 +61,7 @@
 
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">డాక్యుమెంట్ / రిఫరెన్స్ నంబర్ <span class="text-red-500">*</span></label>
-        <input type="text" id="docName" oninput="syncMsg()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 నంబర్ / అర్జీ వివరాలు">
+        <input type="text" id="docName" oninput="syncNoticeMessage()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 నంబర్ / అర్జీ వివరాలు">
       </div>
 
       <!-- Camera & PDF Attachment Section -->
@@ -91,7 +91,7 @@
       <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
         <div>
           <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు రోజులు</label>
-          <select id="daysSelect" onchange="applyDays()" class="w-full border rounded-lg p-2 text-xs bg-white outline-none">
+          <select id="daysSelect" class="w-full border rounded-lg p-2 text-xs bg-white outline-none">
             <option value="1">1 రోజు</option>
             <option value="2">2 రోజులు</option>
             <option value="7" selected>7 రోజులు</option>
@@ -101,24 +101,14 @@
         </div>
         <div>
           <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు తేదీ (Due Date)</label>
-          <input type="date" id="dueDateInput" value="2026-10-17" oninput="onDateInputManual()" onchange="onDateInputManual()" class="w-full border rounded-lg p-1.5 text-xs bg-white font-semibold outline-none focus:border-indigo-600">
+          <input type="date" id="dueDateInput" class="w-full border rounded-lg p-1.5 text-xs bg-white font-semibold outline-none focus:border-indigo-600">
         </div>
       </div>
 
       <!-- Message Preview Box -->
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">అధికారిక నోటీస్ మెసేజ్ ప్రివ్యూ:</label>
-        <textarea id="customMsg" rows="6" class="w-full border rounded-xl p-2.5 text-xs font-sans text-slate-700 bg-slate-50 leading-relaxed outline-none" readonly>*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*
-
-నమస్కారం [గ్రహీత పేరు] గారు,
-
-మీకు *[రిఫరెన్స్ వివరాలు]* సంబంధించిన ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.
-
-దయచేసి దీనిని విచారించి *7 రోజుల్లోగా* (చివరి తేదీ: *17/10/2026*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.
-
-ఇట్లు,
-*తహసీల్దార్ కార్యాలయం,*
-*పెద్దవడుగూరు.*</textarea>
+        <textarea id="customMsg" rows="6" class="w-full border rounded-xl p-2.5 text-xs font-sans text-slate-700 bg-slate-50 leading-relaxed outline-none" readonly></textarea>
       </div>
 
       <button type="button" onclick="sendWhatsAppNotice()" class="w-full bg-emerald-600 active:bg-emerald-700 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-sm shadow flex items-center justify-center gap-2">
@@ -158,28 +148,54 @@
       document.getElementById('fileBadge').classList.add('hidden');
     }
 
-    function applyDays() {
-      const days = Number(document.getElementById('daysSelect').value) || 7;
-      const d = new Date();
-      d.setDate(d.getDate() + days);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      document.getElementById('dueDateInput').value = `${yyyy}-${mm}-${dd}`;
-      syncMsg();
+    // రోజూ సరైన YYYY-MM-DD ఇచ్చే ఫంక్షన్
+    function calculateTargetDateString(daysCount) {
+      const now = new Date();
+      now.setDate(now.getDate() + Number(daysCount));
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
     }
 
-    function onDateInputManual() {
-      syncMsg();
+    // డ్రాప్‌డౌన్ రోజులు మారినప్పుడు తేదీ బాక్స్ అప్‌డేట్ అవ్వడం
+    function updateDateFromDropdown() {
+      const days = document.getElementById('daysSelect').value;
+      const targetStr = calculateTargetDateString(days);
+      document.getElementById('dueDateInput').value = targetStr;
+      syncNoticeMessage();
     }
 
-    function syncMsg() {
+    // క్యాలెండర్‌లో మ్యాన్యువల్‌గా తేదీ మార్చినప్పుడు
+    function updateFromManualDate() {
+      const dateVal = document.getElementById('dueDateInput').value;
+      if (dateVal) {
+        const parts = dateVal.split('-');
+        if (parts.length === 3) {
+          const target = new Date(parts[0], parts[1] - 1, parts[2]);
+          const now = new Date();
+          now.setHours(0,0,0,0);
+          target.setHours(0,0,0,0);
+          const diff = Math.round((target - now) / (1000 * 60 * 60 * 24));
+          if (diff > 0) {
+            const daysSelect = document.getElementById('daysSelect');
+            if (['1', '2', '7', '15', '30'].includes(String(diff))) {
+              daysSelect.value = String(diff);
+            }
+          }
+        }
+      }
+      syncNoticeMessage();
+    }
+
+    // మెసేజ్ ప్రివ్యూ బాక్స్ సింకింగ్
+    function syncNoticeMessage() {
       const category = document.getElementById('categorySelect').value;
       const name = document.getElementById('name').value.trim() || '[గ్రహీత పేరు]';
       const doc = document.getElementById('docName').value.trim() || '[రిఫరెన్స్ వివరాలు]';
       const dateVal = document.getElementById('dueDateInput').value;
 
-      let dateFormatted = '17/10/2026';
+      let dateFormatted = '';
       let days = document.getElementById('daysSelect').value || '7';
 
       if (dateVal) {
@@ -197,7 +213,7 @@
 
       const catText = category ? ` (${category})` : '';
 
-      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${doc}* సంబంధించిన${catText} ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${days} రోజుల్లోగా* (చివరి తేదీ: *${dateFormatted}*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
+      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${doc}* సంబంధించిన${catText} ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${days} రోజుల్లోగా* ${dateFormatted ? `(చివరి తేదీ: *${dateFormatted}*) ` : ''}మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
 
       document.getElementById('customMsg').value = text;
     }
@@ -291,13 +307,14 @@
       list.unshift(record);
       saveEntries(list);
 
+      // Reset
       document.getElementById('name').value = '';
       document.getElementById('phone').value = '';
       document.getElementById('docName').value = '';
       document.getElementById('categorySelect').value = '';
       removeFile();
       document.getElementById('daysSelect').value = '7';
-      applyDays();
+      updateDateFromDropdown();
 
       if (pickedFile && navigator.canShare && navigator.canShare({ files: [pickedFile] })) {
         try {
@@ -400,21 +417,4 @@
                 </button>
                 <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
                   ✓ రిటర్న్
-                </button>
-              ` : '<span class="flex-1 text-slate-400 py-1.5 text-center font-bold">పూర్తయింది</span>'}
-
-              <button onclick="deleteRecord(${item.id})" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg hover:text-red-600">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function pickContact() {
-      if ('contacts' in navigator && 'ContactsManager' in window) {
-        try {
-          const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
-          if (contacts.length > 0) {
-            if (contacts[0].name?.[0]) document.getEl
+                </butt
