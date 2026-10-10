@@ -9,28 +9,8 @@
 </head>
 <body class="bg-slate-100 min-h-screen p-3 text-slate-800">
 
-  <!-- 1. సెక్యూరిటీ పిన్ స్క్రీన్ (PIN: 1207) -->
-  <div id="loginScreen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.95); z-index:99999; display:flex; align-items:center; justify-content:center; padding:16px;">
-    <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl text-center space-y-4">
-      <div class="w-14 h-14 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center mx-auto text-2xl">
-        <i class="fas fa-lock"></i>
-      </div>
-      <div>
-        <h2 class="text-base font-bold text-slate-800">అధికారిక లాగిన్</h2>
-        <p class="text-xs text-slate-500 mt-1">తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు</p>
-      </div>
-      <div>
-        <input type="tel" id="accessPin" maxlength="4" oninput="checkAutoPin()" class="w-full text-center tracking-widest text-2xl font-bold border-2 border-indigo-300 rounded-xl p-2.5 outline-none focus:border-indigo-600 bg-slate-50" placeholder="••••" autofocus>
-      </div>
-      <button type="button" onclick="verifyPinManual()" class="w-full bg-indigo-700 hover:bg-indigo-800 active:bg-indigo-900 text-white font-bold py-3 rounded-xl text-sm shadow">
-        యాక్సెస్ చేయండి
-      </button>
-      <p id="errorMsg" style="display:none; color:red; font-size:12px; font-weight:bold;">తప్పు పిన్! (PIN: 1207)</p>
-    </div>
-  </div>
-
-  <!-- 2. మెయిన్ అప్లికేషన్ -->
-  <div id="mainApp" class="max-w-md mx-auto space-y-4" style="display:none;">
+  <!-- మెయిన్ అప్లికేషన్ (డైరెక్ట్ యాక్సెస్ - పాస్‌వర్డ్ లేదు) -->
+  <div id="mainApp" class="max-w-md mx-auto space-y-4">
     
     <!-- Header -->
     <div class="bg-indigo-800 text-white p-5 rounded-2xl shadow border-b-4 border-amber-500 flex justify-between items-center">
@@ -41,9 +21,6 @@
           <p class="text-indigo-200 text-xs">అధికారిక రికార్డుల & నోటీస్ ట్రాకర్</p>
         </div>
       </div>
-      <button onclick="lockScreen()" title="లాక్" class="text-indigo-200 hover:text-white text-xs bg-indigo-900/50 p-2 rounded-lg">
-        <i class="fas fa-lock"></i>
-      </button>
     </div>
 
     <!-- Entry Form -->
@@ -55,7 +32,7 @@
         </button>
       </div>
 
-      <!-- Category Dropdown -->
+      <!-- 1st STEP: Category Dropdown (4 Options) -->
       <div class="bg-amber-50/70 p-3 rounded-xl border border-amber-300">
         <label class="block text-xs font-bold text-amber-900 mb-1 flex items-center gap-1.5">
           <i class="fas fa-list-check text-amber-600"></i> విభాగం ఎంచుకోండి (Category)
@@ -141,41 +118,6 @@
   </div>
 
   <script>
-    const SECRET_PIN = "1207";
-
-    // 1207 టైప్ చేయగానే ఆటోమేటిక్‌గా ఓపెన్ అవుతుంది
-    function checkAutoPin() {
-      const pin = document.getElementById('accessPin').value;
-      if (pin.length === 4) {
-        verifyPinManual();
-      }
-    }
-
-    function verifyPinManual() {
-      const pin = document.getElementById('accessPin').value;
-      const err = document.getElementById('errorMsg');
-      if (pin === SECRET_PIN) {
-        err.style.display = 'none';
-        unlockApp();
-      } else {
-        err.style.display = 'block';
-        document.getElementById('accessPin').value = '';
-      }
-    }
-
-    function unlockApp() {
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('mainApp').style.display = 'block';
-      changeDays();
-      render();
-    }
-
-    function lockScreen() {
-      document.getElementById('accessPin').value = '';
-      document.getElementById('mainApp').style.display = 'none';
-      document.getElementById('loginScreen').style.display = 'flex';
-    }
-
     function formatDate(d) {
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -429,4 +371,40 @@
                 <button onclick="sendReminder('${item.phone}', '${item.name}', '${item.docName}', '${item.dueDate}', '${item.category || 'Mutations'}')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
                   🔔 రిమైండ్
                 </button>
-  
+                <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
+                  ✓ రిటర్న్
+                </button>
+              ` : '<span class="flex-1 text-slate-400 py-1.5 text-center font-bold">పూర్తయింది</span>'}
+
+              <button onclick="deleteRecord(${item.id})" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg hover:text-red-600">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function pickContact() {
+      if ('contacts' in navigator && 'ContactsManager' in window) {
+        try {
+          const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
+          if (contacts.length > 0) {
+            if (contacts[0].name?.[0]) document.getElementById('name').value = contacts[0].name[0];
+            if (contacts[0].tel?.[0]) {
+              let clean = contacts[0].tel[0].replace(/[^0-9]/g, '');
+              if (clean.length > 10) clean = clean.slice(-10);
+              document.getElementById('phone').value = clean;
+            }
+            updateMsg();
+          }
+        } catch (ex) {}
+      }
+    }
+
+    // పేజీ లోడ్ అవ్వగానే ఆటోమేటిక్‌గా ఫారమ్ & రికార్డులు సిద్ధమవుతాయి
+    changeDays();
+    render();
+  </script>
+</body>
+</html>
