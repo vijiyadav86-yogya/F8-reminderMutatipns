@@ -3,19 +3,118 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>F-8 & Document Reminder System</title>
-  <!-- Tailwind CSS CDN -->
+  <title>F-8 Mutation & PDF Reminder</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 pb-12">
+<body class="bg-slate-100 min-h-screen p-4 text-slate-800">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <div class="bg-indigo-700 text-white p-6 rounded-2xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <h1 class="text-2xl font-bold">📄 F-8 / PDF రిమైండర్ ట్రాకర్</h1>
+        <p class="text-indigo-200 text-sm mt-1">15 రోజుల గడువు & ఆటోమేటిక్ వాట్సాప్ రిమైండర్</p>
+      </div>
+      <button onclick="checkReminders()" class="bg-amber-500 hover:bg-amber-600 text-white font-medium px-4 py-2 rounded-xl text-sm shadow">
+        🔔 చెక్ రిమైండర్స్ (Delay Check)
+      </button>
+    </div>
 
-  <!-- Header -->
-  <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-
+    <!-- Upload Form -->
+    <div class="bg-white p-6 rounded-2xl shadow border border-slate-200">
+      <h2 class="text-lg font-bold mb-4 text-slate-700">కొత్త PDF ఎంట్రీ & వాట్సాప్ షేర్</h2>
+      <form id="docForm" onsubmit="saveEntry(event)" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1">గ్రహీత పేరు (Person Name)</label>
+            <input type="text" id="name" required class="w-full border rounded-xl p-2.5 outline-none focus:border-indigo-600" placeholder="ఉదా: రాము">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1">WhatsApp నంబర్ (10 అంకెలు)</label>
+            <input type="tel" id="phone" pattern="[0-9]{10}" required class="w-full border rounded-xl p-2.5 outline-none focus:border-indigo-600" placeholder="9876543210">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1">డాక్యుమెంట్ పేరు / F-8 నంబర్</label>
+            <input type="text" id="docName" required class="w-full border rounded-xl p-2.5 outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 Mutation Report">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1">PDF డాక్యుమెంట్ ఎంచుకోండి</label>
+            <input type="file" id="file" accept=".pdf" class="w-full border rounded-xl p-2 text-sm text-slate-500 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2">
+          <i class="fab fa-whatsapp text-lg"></i> వాట్సాప్‌లో పంపు & ట్రాకింగ్ ప్రారంభించు
+        </button>
+      </form>
+    </div>
+
+    <!-- Records Table -->
+    <div class="bg-white p-6 rounded-2xl shadow border border-slate-200">
+      <h2 class="text-lg font-bold mb-4 text-slate-700">ట్రాకింగ్ రికార్డులు</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50 text-slate-600 border-b">
+            <tr>
+              <th class="p-3">పేరు</th>
+              <th class="p-3">ఫోన్</th>
+              <th class="p-3">పంపిన తేదీ</th>
+              <th class="p-3">గడువు తేదీ</th>
+              <th class="p-3">స్టేటస్</th>
+              <th class="p-3 text-right">యాక్షన్</th>
+            </tr>
+          </thead>
+          <tbody id="recordList" class="divide-y divide-slate-100">
+            <!-- Records Load Here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let entries = JSON.parse(localStorage.getItem('f8_records') || '[]');
+
+    function saveEntry(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const phone = document.getElementById('phone').value;
+      const docName = document.getElementById('docName').value;
+
+      const sentDate = new Date();
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 15);
+
+      const newRecord = {
+        id: Date.now(),
+        name,
+        phone,
+        docName,
+        sentDate: sentDate.toISOString().split('T')[0],
+        dueDate: dueDate.toISOString().split('T')[0],
+        status: 'PENDING'
+      };
+
+      entries.push(newRecord);
+      localStorage.setItem('f8_records', JSON.stringify(entries));
+      render();
+
+      const msg = encodeURIComponent(`నమస్కారం ${name} గారు, మీకు ${docName} పంపడం జరిగినది. దయచేసి విచారించి 15 రోజుల్లోగా రిపోర్ట్ ఇవ్వగలరు.`);
+      window.open(`https://wa.me/91${phone}?text=${msg}`, '_blank');
+      document.getElementById('docForm').reset();
+    }
+
+    function markReturned(id) {
+      entries = entries.map(item => item.id === id ? { ...item, status: 'RETURNED' } : item);
+      localStorage.setItem('f8_records', JSON.stringify(entries));
+      render();
+    }
+
+    function checkReminders() {
+      const today = new Date().toISOString().split('T')[0];
+      const overdue = entries.filter(e => e.status === 'PENDING' && e.dueDate <= today);
+      if (overdue.length === 0) {
+
       
