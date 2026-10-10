@@ -26,17 +26,17 @@
     <div class="bg-white p-5 rounded-2xl shadow border border-slate-200 space-y-3">
       <div class="flex justify-between items-center">
         <h2 class="text-sm font-bold text-slate-700">కొత్త ఎంట్రీ & నోటీస్</h2>
-        <button type="button" onclick="pickContact()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold px-2.5 py-1 rounded-lg">
-          <i class="fas fa-address-book"></i> కాంటాక్ట్
+        <button type="button" id="contactBtn" class="bg-indigo-50 active:bg-indigo-200 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm">
+          <i class="fas fa-address-book text-indigo-600"></i> కాంటాక్ట్ ఎంచుకోండి
         </button>
       </div>
 
-      <!-- 1st STEP: Category Dropdown -->
+      <!-- Category Dropdown -->
       <div class="bg-amber-50/80 p-3 rounded-xl border-2 border-amber-300">
         <label class="block text-xs font-bold text-amber-900 mb-1 flex items-center gap-1.5">
           <i class="fas fa-list-check text-amber-600"></i> విభాగం ఎంచుకోండి (Category) <span class="text-red-500">*</span>
         </label>
-        <select id="categorySelect" onchange="renderNotice()" class="w-full border-2 border-amber-300 rounded-xl p-2.5 text-xs font-bold text-slate-800 bg-white outline-none focus:border-indigo-600">
+        <select id="categorySelect" class="w-full border-2 border-amber-300 rounded-xl p-2.5 text-xs font-bold text-slate-800 bg-white outline-none focus:border-indigo-600">
           <option value="" selected>-- ఎంచుకోండి (Select Category) --</option>
           <option value="Mutations">1. Mutations (మ్యుటేషన్స్)</option>
           <option value="PGRS">2. PGRS (ప్రజా సమస్యల పరిష్కార వేదిక)</option>
@@ -47,7 +47,7 @@
       
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">గ్రహీత పేరు (VRO / Person) <span class="text-red-500">*</span></label>
-        <input type="text" id="name" oninput="renderNotice()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: రాజేష్">
+        <input type="text" id="name" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: రాజేష్">
       </div>
 
       <!-- Phone Number with +91 Prefix -->
@@ -61,7 +61,7 @@
 
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">డాక్యుమెంట్ / రిఫరెన్స్ నంబర్ <span class="text-red-500">*</span></label>
-        <input type="text" id="docName" oninput="renderNotice()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 నంబర్ / అర్జీ వివరాలు">
+        <input type="text" id="docName" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 నంబర్ / అర్జీ వివరాలు">
       </div>
 
       <!-- Camera & PDF Attachment Section -->
@@ -73,40 +73,40 @@
           <label class="cursor-pointer bg-emerald-600 active:bg-emerald-700 text-white p-2.5 rounded-xl text-center flex flex-col items-center justify-center gap-1 shadow">
             <i class="fas fa-camera text-lg"></i>
             <span class="text-xs font-bold">కెమెరా ఓపెన్ చేయి</span>
-            <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="fileChosen(this)" class="hidden">
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
           </label>
           <label class="cursor-pointer bg-indigo-700 active:bg-indigo-800 text-white p-2.5 rounded-xl text-center flex flex-col items-center justify-center gap-1 shadow">
             <i class="fas fa-file-pdf text-lg"></i>
             <span class="text-xs font-bold">PDF / ఫైల్స్</span>
-            <input type="file" id="fileInput" accept="application/pdf,image/*" onchange="fileChosen(this)" class="hidden">
+            <input type="file" id="fileInput" accept="application/pdf,image/*" class="hidden">
           </label>
         </div>
         <div id="fileBadge" class="hidden bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs p-2 rounded-xl font-bold flex items-center justify-between">
           <span id="fileBadgeText" class="truncate max-w-[220px]"></span>
-          <button type="button" onclick="removeFile()" class="text-red-600 font-extrabold ml-2">✕ తీసివేయి</button>
+          <button type="button" id="removeFileBtn" class="text-red-600 font-extrabold ml-2">✕ తీసివేయి</button>
         </div>
       </div>
 
-      <!-- Due Date Selection with Fast-Action Buttons -->
+      <!-- Due Date Selection -->
       <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
         <div class="flex items-center justify-between">
-          <label class="text-[11px] font-bold text-slate-700">గడువు రోజులు & తేదీ:</label>
+          <label class="text-[11px] font-bold text-slate-700">గడువు రోజులు:</label>
           <span id="currentDaysBadge" class="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-bold">7 రోజులు</span>
         </div>
 
-        <div class="grid grid-cols-5 gap-1">
-          <button type="button" onclick="setDue(1)" class="day-btn py-1.5 text-xs bg-white border border-slate-300 rounded-lg font-bold hover:bg-indigo-50">1 D</button>
-          <button type="button" onclick="setDue(2)" class="day-btn py-1.5 text-xs bg-white border border-slate-300 rounded-lg font-bold hover:bg-indigo-50">2 D</button>
-          <button type="button" onclick="setDue(7)" class="day-btn py-1.5 text-xs bg-indigo-600 text-white border border-indigo-600 rounded-lg font-bold">7 D</button>
-          <button type="button" onclick="setDue(15)" class="day-btn py-1.5 text-xs bg-white border border-slate-300 rounded-lg font-bold hover:bg-indigo-50">15 D</button>
-          <button type="button" onclick="setDue(30)" class="day-btn py-1.5 text-xs bg-white border border-slate-300 rounded-lg font-bold hover:bg-indigo-50">30 D</button>
+        <div class="grid grid-cols-5 gap-1.5">
+          <button type="button" class="day-btn py-2 text-xs bg-white border border-slate-300 rounded-lg font-bold shadow-sm" data-days="1">1 D</button>
+          <button type="button" class="day-btn py-2 text-xs bg-white border border-slate-300 rounded-lg font-bold shadow-sm" data-days="2">2 D</button>
+          <button type="button" class="day-btn py-2 text-xs bg-indigo-600 text-white border border-indigo-600 rounded-lg font-bold shadow-sm" data-days="7">7 D</button>
+          <button type="button" class="day-btn py-2 text-xs bg-white border border-slate-300 rounded-lg font-bold shadow-sm" data-days="15">15 D</button>
+          <button type="button" class="day-btn py-2 text-xs bg-white border border-slate-300 rounded-lg font-bold shadow-sm" data-days="30">30 D</button>
         </div>
 
         <div class="flex items-center gap-1.5 pt-1">
-          <input type="text" id="dueDateField" oninput="renderNotice()" class="w-full border-2 border-indigo-300 rounded-lg p-2 text-xs bg-white font-bold outline-none text-center" placeholder="DD/MM/YYYY">
-          <label class="cursor-pointer bg-indigo-700 hover:bg-indigo-800 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow">
+          <input type="text" id="dueDateField" class="w-full border-2 border-indigo-300 rounded-lg p-2 text-xs bg-white font-bold outline-none text-center" placeholder="DD/MM/YYYY">
+          <label class="cursor-pointer bg-indigo-700 active:bg-indigo-900 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow">
             <i class="fas fa-calendar-alt"></i>
-            <input type="date" id="calendarPicker" onchange="pickCalendarDate(this.value)" class="hidden">
+            <input type="date" id="calendarPicker" class="hidden">
           </label>
         </div>
       </div>
@@ -117,7 +117,7 @@
         <textarea id="customMsg" rows="6" class="w-full border rounded-xl p-2.5 text-xs font-sans text-slate-700 bg-slate-50 leading-relaxed outline-none" readonly></textarea>
       </div>
 
-      <button type="button" onclick="sendWhatsAppNotice()" class="w-full bg-emerald-600 active:bg-emerald-700 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-sm shadow flex items-center justify-center gap-2">
+      <button type="button" id="sendBtn" class="w-full bg-emerald-600 active:bg-emerald-700 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-sm shadow flex items-center justify-center gap-2">
         <i class="fab fa-whatsapp text-xl"></i> వాట్సాప్‌లో అధికారిక నోటీస్ పంపు
       </button>
     </div>
@@ -137,49 +137,68 @@
     let pickedFile = null;
     let selectedDaysCount = 7;
 
-    function fileChosen(input) {
-      if (input.files && input.files[0]) {
-        pickedFile = input.files[0];
-        document.getElementById('fileBadge').classList.remove('hidden');
-        const isImg = pickedFile.type.startsWith('image/');
-        document.getElementById('fileBadgeText').innerText = isImg 
-          ? `📸 Photo: ${pickedFile.name || 'Captured Image'}` 
-          : `📄 PDF: ${pickedFile.name}`;
+    // 1. Contact Picker (Safe Mobile Implementation)
+    document.getElementById('contactBtn').addEventListener('click', async () => {
+      if ('contacts' in navigator && 'ContactsManager' in window) {
+        try {
+          const props = ['name', 'tel'];
+          const contacts = await navigator.contacts.select(props, { multiple: false });
+          if (contacts && contacts.length > 0) {
+            const contact = contacts[0];
+            if (contact.name && contact.name[0]) {
+              document.getElementById('name').value = contact.name[0];
+            }
+            if (contact.tel && contact.tel[0]) {
+              let clean = contact.tel[0].replace(/[^0-9]/g, '');
+              if (clean.length > 10) clean = clean.slice(-10);
+              document.getElementById('phone').value = clean;
+            }
+            renderNotice();
+          }
+        } catch (err) {
+          console.warn('Contact picker cancelled or blocked:', err);
+        }
+      } else {
+        alert('మీ బ్రౌజర్ నేరుగా కాంటాక్ట్ సెలెక్షన్‌కు అనుమతించట్లేదు. దయచేసి పేరు, నంబర్ నేరుగా టైప్ చేయండి.');
       }
-    }
+    });
 
-    function removeFile() {
-      pickedFile = null;
-      document.getElementById('cameraInput').value = '';
-      document.getElementById('fileInput').value = '';
-      document.getElementById('fileBadge').classList.add('hidden');
-    }
+    // 2. Date Calculation & Update Engine
+    function setDaysAndDate(days) {
+      selectedDaysCount = parseInt(days, 10) || 7;
 
-    // డైరెక్ట్ బటన్ క్లిక్ తో రోజులు మరియు తేదీ సెట్ చేయడం
-    function setDue(days) {
-      selectedDaysCount = Number(days);
-
-      // బటన్ కలర్స్ మార్పు
       document.querySelectorAll('.day-btn').forEach(btn => {
-        btn.className = "day-btn py-1.5 text-xs bg-white border border-slate-300 rounded-lg font-bold hover:bg-indigo-50";
-        if (btn.innerText.trim() === `${days} D`) {
-          btn.className = "day-btn py-1.5 text-xs bg-indigo-600 text-white border border-indigo-600 rounded-lg font-bold";
+        if (parseInt(btn.getAttribute('data-days'), 10) === selectedDaysCount) {
+          btn.className = "day-btn py-2 text-xs bg-indigo-600 text-white border border-indigo-600 rounded-lg font-bold shadow-sm";
+        } else {
+          btn.className = "day-btn py-2 text-xs bg-white border border-slate-300 rounded-lg font-bold shadow-sm";
         }
       });
 
-      document.getElementById('currentDaysBadge').innerText = `${days} రోజులు`;
+      document.getElementById('currentDaysBadge').innerText = `${selectedDaysCount} రోజులు`;
 
-      const d = new Date();
-      d.setDate(d.getDate() + selectedDaysCount);
-      const dd = String(d.getDate()).padStart(2, '0');
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const yyyy = d.getFullYear();
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + selectedDaysCount);
+
+      const dd = String(targetDate.getDate()).padStart(2, '0');
+      const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+      const yyyy = targetDate.getFullYear();
 
       document.getElementById('dueDateField').value = `${dd}/${mm}/${yyyy}`;
       renderNotice();
     }
 
-    function pickCalendarDate(val) {
+    // Attach listeners to Quick-Days Buttons
+    document.querySelectorAll('.day-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const d = e.currentTarget.getAttribute('data-days');
+        setDaysAndDate(d);
+      });
+    });
+
+    // Native Calendar Picker Change
+    document.getElementById('calendarPicker').addEventListener('change', (e) => {
+      const val = e.target.value;
       if (val) {
         const parts = val.split('-');
         if (parts.length === 3) {
@@ -197,8 +216,9 @@
           renderNotice();
         }
       }
-    }
+    });
 
+    // 3. Render Notice Preview
     function renderNotice() {
       const category = document.getElementById('categorySelect').value;
       const name = document.getElementById('name').value.trim() || '[గ్రహీత పేరు]';
@@ -216,6 +236,34 @@
       document.getElementById('customMsg').value = text;
     }
 
+    ['categorySelect', 'name', 'docName', 'dueDateField'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('input', renderNotice);
+      el.addEventListener('change', renderNotice);
+    });
+
+    // 4. File Upload & Camera
+    function handleSelectedFile(file) {
+      if (!file) return;
+      pickedFile = file;
+      document.getElementById('fileBadge').classList.remove('hidden');
+      const isImg = pickedFile.type.startsWith('image/');
+      document.getElementById('fileBadgeText').innerText = isImg 
+        ? `📸 Photo: ${pickedFile.name || 'Captured Image'}` 
+        : `📄 PDF: ${pickedFile.name}`;
+    }
+
+    document.getElementById('cameraInput').addEventListener('change', (e) => handleSelectedFile(e.target.files[0]));
+    document.getElementById('fileInput').addEventListener('change', (e) => handleSelectedFile(e.target.files[0]));
+    
+    document.getElementById('removeFileBtn').addEventListener('click', () => {
+      pickedFile = null;
+      document.getElementById('cameraInput').value = '';
+      document.getElementById('fileInput').value = '';
+      document.getElementById('fileBadge').classList.add('hidden');
+    });
+
+    // 5. WhatsApp Sending & LocalStorage Records
     function getEntries() {
       try {
         return JSON.parse(localStorage.getItem('f8_records') || '[]');
@@ -238,7 +286,7 @@
       });
     }
 
-    async function sendWhatsAppNotice() {
+    document.getElementById('sendBtn').addEventListener('click', async () => {
       const category = document.getElementById('categorySelect').value;
       const name = document.getElementById('name').value.trim();
       let rawPhone = document.getElementById('phone').value.trim();
@@ -247,7 +295,7 @@
       const msg = document.getElementById('customMsg').value;
 
       if (!category) {
-        alert('దయచేసి విభాగం (Category) ఎంచుకోండి!');
+        alert('దయచేసి ముందుగా విభాగం (Category) ను ఎంచుకోండి!');
         document.getElementById('categorySelect').focus();
         return;
       }
@@ -297,12 +345,13 @@
       list.unshift(record);
       saveEntries(list);
 
+      // Form reset
       document.getElementById('name').value = '';
       document.getElementById('phone').value = '';
       document.getElementById('docName').value = '';
       document.getElementById('categorySelect').value = '';
-      removeFile();
-      setDue(7);
+      document.getElementById('removeFileBtn').click();
+      setDaysAndDate(7);
 
       if (pickedFile && navigator.canShare && navigator.canShare({ files: [pickedFile] })) {
         try {
@@ -316,7 +365,7 @@
       }
 
       window.location.href = `https://api.whatsapp.com/send?phone=91${cleanDigits}&text=${encodeURIComponent(msg)}`;
-    }
+    });
 
     function viewAttachment(id) {
       const item = getEntries().find(r => r.id === id);
@@ -374,35 +423,4 @@
                 <p class="text-indigo-700 font-semibold mt-0.5">${item.docName}</p>
                 ${item.fileName ? `
                   <p class="text-slate-500 text-[10px] mt-0.5 flex items-center gap-1">
-                    <i class="fas ${item.fileType === 'IMAGE' ? 'fa-camera text-emerald-600' : 'fa-file-pdf text-red-500'}"></i> ${item.fileName}
-                  </p>
-                ` : ''}
-              </div>
-              <div class="flex flex-col items-end gap-1">
-                ${item.status === 'RETURNED' 
-                  ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold text-[10px]">✓ రిపోర్ట్ వచ్చింది</span>' 
-                  : '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold text-[10px]">పెండింగ్</span>'}
-                <span class="text-[10px] text-slate-400 font-medium">గడువు: ${item.daysAllowed} రోజులు</span>
-              </div>
-            </div>
-
-            <div class="flex justify-between text-slate-500 border-t pt-2 text-[11px]">
-              <span>పంపినది: <b>${item.sentDate}</b></span>
-              <span>చివరి తేదీ: <b>${item.dueDate}</b></span>
-            </div>
-
-            <div class="flex flex-wrap gap-1.5 pt-1 border-t">
-              ${item.fileData ? `
-                <button onclick="viewAttachment(${item.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-2.5 py-1.5 rounded-lg text-center flex items-center gap-1">
-                  <i class="fas ${item.fileType === 'IMAGE' ? 'fa-image text-emerald-600' : 'fa-eye text-indigo-600'}"></i> ${item.fileType === 'IMAGE' ? 'ఫోటో చూడు' : 'PDF చూడు'}
-                </button>
-              ` : ''}
-
-              ${item.status === 'PENDING' ? `
-                <button onclick="sendReminder('${item.phone}', '${item.name}', '${item.docName}', '${item.dueDate}', '${item.category || 'Mutations'}')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
-                  🔔 రిమైండ్
-                </button>
-                <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
-                  ✓ రిటర్న్
-                </button>
-              ` : '<span class="flex-1 text-slate
+                    <i class="fas ${item.fileType === 'IMAGE' ? 'fa-cam
