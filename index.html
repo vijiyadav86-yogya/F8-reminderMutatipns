@@ -9,7 +9,6 @@
 </head>
 <body class="bg-slate-100 min-h-screen p-3 text-slate-800">
 
-  <!-- మెయిన్ అప్లికేషన్ (డైరెక్ట్ యాక్సెస్ - పాస్‌వర్డ్ లేదు) -->
   <div id="mainApp" class="max-w-md mx-auto space-y-4">
     
     <!-- Header -->
@@ -32,12 +31,13 @@
         </button>
       </div>
 
-      <!-- 1st STEP: Category Dropdown (4 Options) -->
-      <div class="bg-amber-50/70 p-3 rounded-xl border border-amber-300">
+      <!-- 1st STEP: Category Dropdown (Default '-- ఎంచుకోండి --') -->
+      <div class="bg-amber-50/80 p-3 rounded-xl border-2 border-amber-300">
         <label class="block text-xs font-bold text-amber-900 mb-1 flex items-center gap-1.5">
-          <i class="fas fa-list-check text-amber-600"></i> విభాగం ఎంచుకోండి (Category)
+          <i class="fas fa-list-check text-amber-600"></i> విభాగం ఎంచుకోండి (Select Category) <span class="text-red-500">*</span>
         </label>
         <select id="categorySelect" onchange="updateMsg()" class="w-full border-2 border-amber-300 rounded-xl p-2.5 text-xs font-bold text-slate-800 bg-white outline-none focus:border-indigo-600">
+          <option value="" selected>-- ఎంచుకోండి (Select Category) --</option>
           <option value="Mutations">1. Mutations (మ్యుటేషన్స్)</option>
           <option value="PGRS">2. PGRS (ప్రజా సమస్యల పరిష్కార వేదిక)</option>
           <option value="Mandala arjilu">3. Mandala arjilu (మండల అర్జీలు)</option>
@@ -46,13 +46,13 @@
       </div>
       
       <div>
-        <label class="block text-xs font-semibold mb-1 text-slate-600">గ్రహీత పేరు (VRO / Person)</label>
+        <label class="block text-xs font-semibold mb-1 text-slate-600">గ్రహీత పేరు (VRO / Person) <span class="text-red-500">*</span></label>
         <input type="text" id="name" oninput="updateMsg()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: రాజేష్">
       </div>
 
       <!-- Phone Number with +91 Prefix -->
       <div>
-        <label class="block text-xs font-semibold mb-1 text-slate-600">WhatsApp నంబర్</label>
+        <label class="block text-xs font-semibold mb-1 text-slate-600">WhatsApp నంబర్ <span class="text-red-500">*</span></label>
         <div class="flex items-center border rounded-xl overflow-hidden focus-within:border-indigo-600 bg-white">
           <span class="bg-slate-100 text-slate-700 font-bold px-3 py-2.5 text-sm border-r select-none">+91</span>
           <input type="tel" id="phone" maxlength="10" class="w-full p-2.5 text-sm outline-none" placeholder="9876543210">
@@ -60,7 +60,7 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold mb-1 text-slate-600">డాక్యుమెంట్ / రిఫరెన్స్ నంబర్</label>
+        <label class="block text-xs font-semibold mb-1 text-slate-600">డాక్యుమెంట్ / రిఫరెన్స్ నంబర్ <span class="text-red-500">*</span></label>
         <input type="text" id="docName" oninput="updateMsg()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 నంబర్ / అర్జీ వివరాలు">
       </div>
 
@@ -73,26 +73,26 @@
         <p class="text-[10px] text-slate-500">* PDF ఫైల్ సేవ్ అయి, కింద రికార్డులో "PDF చూడు" బటన్ ద్వారా ఓపెన్ చేసుకోవచ్చు.</p>
       </div>
 
-      <!-- Due Date Selection -->
+      <!-- Due Date Selection & Manual Entry -->
       <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు మోడ్</label>
-            <select id="daysSelect" onchange="changeDays()" class="w-full border rounded-lg p-2 text-xs bg-white font-medium outline-none">
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు రోజులు (షార్ట్‌కట్)</label>
+            <select id="daysSelect" onchange="changeDaysShortcut()" class="w-full border rounded-lg p-2 text-xs bg-white font-medium outline-none">
+              <option value="custom" selected>✏️ కస్టమ్ / మ్యాన్యువల్</option>
               <option value="1">1 రోజు</option>
               <option value="2">2 రోజులు</option>
               <option value="7">7 రోజులు</option>
-              <option value="15" selected>15 రోజులు</option>
+              <option value="15">15 రోజులు</option>
               <option value="30">30 రోజులు</option>
-              <option value="manual">📅 మ్యాన్యువల్ తేదీ (Custom)</option>
             </select>
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు తేదీ (Due Date)</label>
-            <input type="date" id="dueDateInput" onchange="onManualDateChange()" class="w-full border rounded-lg p-1.5 text-xs bg-white font-semibold outline-none focus:border-indigo-600">
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు తేదీ (Due Date) <span class="text-red-500">*</span></label>
+            <input type="date" id="dueDateInput" oninput="onManualDateChange()" onchange="onManualDateChange()" class="w-full border rounded-lg p-1.5 text-xs bg-white font-semibold outline-none focus:border-indigo-600">
           </div>
         </div>
-        <p id="dateHint" class="text-[10px] text-indigo-700 font-medium">* 15 రోజుల గడువు సెట్ చేయబడింది.</p>
+        <p id="dateHint" class="text-[10px] text-indigo-700 font-medium">* క్యాలెండర్ నొక్కి తేదీని నేరుగా ఎంచుకోండి లేదా రోజులు ఎంచుకోండి.</p>
       </div>
 
       <!-- Message Preview Box -->
@@ -125,12 +125,21 @@
       return `${year}-${month}-${day}`;
     }
 
-    function changeDays() {
+    // Default setup: 15 రోజుల తేదీని మొదట్లోనే సెట్ చేయడం
+    function initDefaultDate() {
+      const target = new Date();
+      target.setDate(target.getDate() + 15);
+      document.getElementById('dueDateInput').value = formatDate(target);
+      document.getElementById('daysSelect').value = '15';
+      document.getElementById('dateHint').innerText = `* 15 రోజుల గడువు (${target.toLocaleDateString('en-GB')}) సెట్ చేయబడింది.`;
+    }
+
+    function changeDaysShortcut() {
       const mode = document.getElementById('daysSelect').value;
       const hint = document.getElementById('dateHint');
 
-      if (mode === 'manual') {
-        hint.innerText = '* క్యాలెండర్ నుండి తేదీని ఎంచుకోండి.';
+      if (mode === 'custom') {
+        hint.innerText = '* క్యాలెండర్ నొక్కి మీకు కావలసిన తేదీని ఎంచుకోండి.';
         onManualDateChange();
         return;
       }
@@ -145,6 +154,7 @@
 
     function onManualDateChange() {
       const val = document.getElementById('dueDateInput').value;
+      const hint = document.getElementById('dateHint');
       if (val) {
         const selDate = new Date(val);
         const today = new Date();
@@ -152,10 +162,11 @@
         selDate.setHours(0,0,0,0);
         const diffDays = Math.round((selDate - today) / (1000 * 60 * 60 * 24));
         
-        document.getElementById('daysSelect').value = 'manual';
-        document.getElementById('dateHint').innerText = diffDays > 0 
-          ? `* నేటి నుండి ${diffDays} రోజుల గడువు ఇవ్వబడింది.` 
-          : `* ఎంచుకున్న తేదీ: ${selDate.toLocaleDateString('en-GB')}`;
+        if (hint) {
+          hint.innerText = diffDays > 0 
+            ? `* నేటి నుండి ${diffDays} రోజుల గడువు (${selDate.toLocaleDateString('en-GB')}) ఇవ్వబడింది.` 
+            : `* ఎంచుకున్న గడువు తేదీ: ${selDate.toLocaleDateString('en-GB')}`;
+        }
       }
       updateMsg();
     }
@@ -183,7 +194,9 @@
         if (parts.length === 3) dateStr = `${parts[2]}/${parts[1]}/${parts[0]}`;
       }
 
-      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${doc}* సంబంధించిన (${category}) ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${days} రోజుల్లోగా* (చివరి తేదీ: *${dateStr}*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
+      const catText = category ? `(${category})` : '';
+
+      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${doc}* సంబంధించిన ${catText} ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${days} రోజుల్లోగా* (చివరి తేదీ: *${dateStr}*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
       
       document.getElementById('customMsg').value = text;
     }
@@ -216,8 +229,14 @@
       const fileInput = document.getElementById('pdfFileInput');
       const file = fileInput.files[0];
 
+      if (!category) {
+        alert('దయచేసి ముందుగా విభాగం (Select Category) ను ఎంచుకోండి!');
+        document.getElementById('categorySelect').focus();
+        return;
+      }
+
       if (!name || !rawPhone || !doc || !dueDateVal) {
-        alert('దయచేసి పేరు, ఫోన్ నంబర్ మరియు డాక్యుమెంట్ వివరాలన్నీ నమోదు చేయండి!');
+        alert('దయచేసి పేరు, ఫోన్ నంబర్, డాక్యుమెంట్ వివరాలు మరియు గడువు తేదీని నమోదు చేయండి!');
         return;
       }
 
@@ -263,12 +282,14 @@
       list.unshift(record);
       saveEntries(list);
 
+      // Reset
       document.getElementById('name').value = '';
       document.getElementById('phone').value = '';
       document.getElementById('docName').value = '';
       fileInput.value = '';
-      document.getElementById('daysSelect').value = '15';
-      changeDays();
+      document.getElementById('categorySelect').value = '';
+      initDefaultDate();
+      updateMsg();
 
       if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
@@ -402,8 +423,8 @@
       }
     }
 
-    // పేజీ లోడ్ అవ్వగానే ఆటోమేటిక్‌గా ఫారమ్ & రికార్డులు సిద్ధమవుతాయి
-    changeDays();
+    initDefaultDate();
+    updateMsg();
     render();
   </script>
 </body>
