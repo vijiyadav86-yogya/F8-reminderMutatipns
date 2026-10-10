@@ -91,7 +91,7 @@
       <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
         <div>
           <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు రోజులు</label>
-          <select id="daysSelect" class="w-full border rounded-lg p-2 text-xs bg-white outline-none">
+          <select id="daysSelect" onchange="changeDays(this.value)" class="w-full border rounded-lg p-2 text-xs bg-white outline-none">
             <option value="1">1 రోజు</option>
             <option value="2">2 రోజులు</option>
             <option value="7" selected>7 రోజులు</option>
@@ -101,7 +101,13 @@
         </div>
         <div>
           <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు తేదీ (Due Date)</label>
-          <input type="date" id="dueDateInput" class="w-full border rounded-lg p-1.5 text-xs bg-white font-semibold outline-none focus:border-indigo-600">
+          <div class="flex items-center gap-1">
+            <input type="text" id="dueDateText" oninput="syncNoticeMessage()" class="w-full border rounded-lg p-1.5 text-xs bg-white font-bold outline-none focus:border-indigo-600 text-center" placeholder="DD/MM/YYYY">
+            <label class="cursor-pointer bg-indigo-100 hover:bg-indigo-200 text-indigo-700 p-1.5 rounded-lg border border-indigo-300 flex items-center justify-center">
+              <i class="fas fa-calendar-alt text-sm"></i>
+              <input type="date" id="nativeDatePicker" onchange="pickNativeDate(this.value)" class="hidden">
+            </label>
+          </div>
         </div>
       </div>
 
@@ -148,72 +154,44 @@
       document.getElementById('fileBadge').classList.add('hidden');
     }
 
-    // రోజూ సరైన YYYY-MM-DD ఇచ్చే ఫంక్షన్
-    function calculateTargetDateString(daysCount) {
-      const now = new Date();
-      now.setDate(now.getDate() + Number(daysCount));
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, '0');
-      const d = String(now.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
+    // తేదీని DD/MM/YYYY లోకి మార్చే ఫంక్షన్
+    function formatDisplayDate(dateObj) {
+      const dd = String(dateObj.getDate()).padStart(2, '0');
+      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const yyyy = dateObj.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
     }
 
-    // డ్రాప్‌డౌన్ రోజులు మారినప్పుడు తేదీ బాక్స్ అప్‌డేట్ అవ్వడం
-    function updateDateFromDropdown() {
-      const days = document.getElementById('daysSelect').value;
-      const targetStr = calculateTargetDateString(days);
-      document.getElementById('dueDateInput').value = targetStr;
+    // డ్రాప్‌డౌన్ మార్చగానే తేదీ బాక్స్‌లో వెంటనే మారడం
+    function changeDays(days) {
+      const target = new Date();
+      target.setDate(target.getDate() + Number(days));
+      document.getElementById('dueDateText').value = formatDisplayDate(target);
       syncNoticeMessage();
     }
 
-    // క్యాలెండర్‌లో మ్యాన్యువల్‌గా తేదీ మార్చినప్పుడు
-    function updateFromManualDate() {
-      const dateVal = document.getElementById('dueDateInput').value;
-      if (dateVal) {
-        const parts = dateVal.split('-');
+    // క్యాలెండర్ ఐకాన్ నొక్కినప్పుడు
+    function pickNativeDate(val) {
+      if (val) {
+        const parts = val.split('-');
         if (parts.length === 3) {
-          const target = new Date(parts[0], parts[1] - 1, parts[2]);
-          const now = new Date();
-          now.setHours(0,0,0,0);
-          target.setHours(0,0,0,0);
-          const diff = Math.round((target - now) / (1000 * 60 * 60 * 24));
-          if (diff > 0) {
-            const daysSelect = document.getElementById('daysSelect');
-            if (['1', '2', '7', '15', '30'].includes(String(diff))) {
-              daysSelect.value = String(diff);
-            }
-          }
+          document.getElementById('dueDateText').value = `${parts[2]}/${parts[1]}/${parts[0]}`;
+          syncNoticeMessage();
         }
       }
-      syncNoticeMessage();
     }
 
-    // మెసేజ్ ప్రివ్యూ బాక్స్ సింకింగ్
+    // మెసేజ్ ప్రివ్యూ అప్‌డేట్
     function syncNoticeMessage() {
       const category = document.getElementById('categorySelect').value;
       const name = document.getElementById('name').value.trim() || '[గ్రహీత పేరు]';
       const doc = document.getElementById('docName').value.trim() || '[రిఫరెన్స్ వివరాలు]';
-      const dateVal = document.getElementById('dueDateInput').value;
-
-      let dateFormatted = '';
-      let days = document.getElementById('daysSelect').value || '7';
-
-      if (dateVal) {
-        const parts = dateVal.split('-');
-        if (parts.length === 3) {
-          dateFormatted = `${parts[2]}/${parts[1]}/${parts[0]}`;
-          const target = new Date(parts[0], parts[1] - 1, parts[2]);
-          const now = new Date();
-          now.setHours(0,0,0,0);
-          target.setHours(0,0,0,0);
-          const diff = Math.round((target - now) / (1000 * 60 * 60 * 24));
-          if (diff > 0) days = diff;
-        }
-      }
+      const dateVal = document.getElementById('dueDateText').value.trim();
+      const days = document.getElementById('daysSelect').value || '7';
 
       const catText = category ? ` (${category})` : '';
 
-      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${doc}* సంబంధించిన${catText} ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${days} రోజుల్లోగా* ${dateFormatted ? `(చివరి తేదీ: *${dateFormatted}*) ` : ''}మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
+      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${doc}* సంబంధించిన${catText} ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${days} రోజుల్లోగా* ${dateVal ? `(చివరి తేదీ: *${dateVal}*) ` : ''}మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
 
       document.getElementById('customMsg').value = text;
     }
@@ -245,7 +223,7 @@
       const name = document.getElementById('name').value.trim();
       let rawPhone = document.getElementById('phone').value.trim();
       const doc = document.getElementById('docName').value.trim();
-      const dueDateVal = document.getElementById('dueDateInput').value;
+      const dueDateVal = document.getElementById('dueDateText').value.trim();
       const msg = document.getElementById('customMsg').value;
 
       if (!category) {
@@ -278,14 +256,7 @@
       }
 
       const today = new Date();
-      const parts = dueDateVal.split('-');
-      const formattedDue = `${parts[2]}/${parts[1]}/${parts[0]}`;
-
-      const targetDate = new Date(parts[0], parts[1] - 1, parts[2]);
-      const now = new Date();
-      now.setHours(0,0,0,0);
-      targetDate.setHours(0,0,0,0);
-      const diff = Math.round((targetDate - now) / (1000 * 60 * 60 * 24));
+      const sentDateFormatted = formatDisplayDate(today);
 
       const record = {
         id: Date.now(),
@@ -296,10 +267,9 @@
         fileName: fileName,
         fileData: fileDataUrl,
         fileType: fileType,
-        sentDate: `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`,
-        dueDate: formattedDue,
-        dueDateRaw: dueDateVal,
-        daysAllowed: diff > 0 ? diff : 1,
+        sentDate: sentDateFormatted,
+        dueDate: dueDateVal,
+        daysAllowed: document.getElementById('daysSelect').value || '7',
         status: 'PENDING'
       };
 
@@ -314,7 +284,7 @@
       document.getElementById('categorySelect').value = '';
       removeFile();
       document.getElementById('daysSelect').value = '7';
-      updateDateFromDropdown();
+      changeDays(7);
 
       if (pickedFile && navigator.canShare && navigator.canShare({ files: [pickedFile] })) {
         try {
@@ -362,7 +332,6 @@
       const container = document.getElementById('recordList');
       if (!container) return;
 
-      const todayStr = new Date().toISOString().split('T')[0];
       const pendingCount = list.filter(item => item.status === 'PENDING').length;
       document.getElementById('pendingCount').innerText = `${pendingCount} Pending`;
 
@@ -372,7 +341,6 @@
       }
 
       container.innerHTML = list.map(item => {
-        const isOverdue = item.status === 'PENDING' && todayStr > item.dueDateRaw;
         return `
           <div class="border rounded-xl p-3 bg-slate-50 space-y-2 text-xs">
             <div class="flex justify-between items-start">
@@ -392,16 +360,14 @@
               <div class="flex flex-col items-end gap-1">
                 ${item.status === 'RETURNED' 
                   ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold text-[10px]">✓ రిపోర్ట్ వచ్చింది</span>' 
-                  : isOverdue 
-                    ? '<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold text-[10px] animate-pulse">Overdue (ఆలస్యం)</span>' 
-                    : '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold text-[10px]">పెండింగ్</span>'}
+                  : '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold text-[10px]">పెండింగ్</span>'}
                 <span class="text-[10px] text-slate-400 font-medium">గడువు: ${item.daysAllowed} రోజులు</span>
               </div>
             </div>
 
             <div class="flex justify-between text-slate-500 border-t pt-2 text-[11px]">
               <span>పంపినది: <b>${item.sentDate}</b></span>
-              <span>చివరి తేదీ: <b class="${isOverdue ? 'text-red-600' : ''}">${item.dueDate}</b></span>
+              <span>చివరి తేదీ: <b>${item.dueDate}</b></span>
             </div>
 
             <div class="flex flex-wrap gap-1.5 pt-1 border-t">
@@ -417,4 +383,38 @@
                 </button>
                 <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
                   ✓ రిటర్న్
-                </butt
+                </button>
+              ` : '<span class="flex-1 text-slate-400 py-1.5 text-center font-bold">పూర్తయింది</span>'}
+
+              <button onclick="deleteRecord(${item.id})" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg hover:text-red-600">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function pickContact() {
+      if ('contacts' in navigator && 'ContactsManager' in window) {
+        try {
+          const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
+          if (contacts.length > 0) {
+            if (contacts[0].name?.[0]) document.getElementById('name').value = contacts[0].name[0];
+            if (contacts[0].tel?.[0]) {
+              let clean = contacts[0].tel[0].replace(/[^0-9]/g, '');
+              if (clean.length > 10) clean = clean.slice(-10);
+              document.getElementById('phone').value = clean;
+            }
+            syncNoticeMessage();
+          }
+        } catch (ex) {}
+      }
+    }
+
+    // మొదటిసారి రన్ అవుతుంది (7 రోజులు సెట్ చేయడం)
+    changeDays(7);
+    renderDashboard();
+  </script>
+</body>
+</html>
