@@ -10,20 +10,20 @@
 <body class="bg-slate-100 min-h-screen p-3 text-slate-800">
 
   <!-- PIN LOCK OVERLAY -->
-  <div id="pinScreen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
+  <div id="pinScreen" class="fixed inset-0 bg-slate-900/95 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center space-y-4 border border-slate-200">
       <div class="w-14 h-14 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center mx-auto text-2xl shadow-inner">
-        <i class="fas fa-shield-halved"></i>
+        <i class="fas fa-lock"></i>
       </div>
       <div>
         <h2 class="text-base font-bold text-slate-800">సెక్యూరిటీ లాక్</h2>
-        <p class="text-xs text-slate-500 mt-0.5">దయచేసి 4 అంకెల PIN నమోదు చేయండి</p>
+        <p class="text-xs text-slate-500 mt-0.5">PIN నమోదు చేయండి (1207)</p>
       </div>
       <div class="space-y-2">
-        <input type="password" id="pinInput" maxlength="4" pattern="[0-9]*" inputmode="numeric" placeholder="••••" class="w-full text-center tracking-[0.5em] text-2xl font-bold p-3 border-2 border-indigo-200 rounded-xl outline-none focus:border-indigo-600 bg-slate-50">
+        <input type="tel" id="pinInput" maxlength="4" placeholder="••••" class="w-full text-center text-3xl font-bold tracking-widest p-3 border-2 border-indigo-200 rounded-xl outline-none focus:border-indigo-600 bg-slate-50">
         <p id="pinError" class="text-xs text-red-600 font-bold hidden">తప్పు PIN! మళ్ళీ ప్రయత్నించండి.</p>
       </div>
-      <button type="button" onclick="verifyPin()" class="w-full bg-indigo-700 hover:bg-indigo-800 active:bg-indigo-900 text-white font-bold py-3 rounded-xl text-sm shadow">
+      <button type="button" onclick="verifyPin()" class="w-full bg-indigo-700 active:bg-indigo-900 text-white font-bold py-3.5 rounded-xl text-sm shadow">
         అన్‌లాక్ చేయండి
       </button>
     </div>
@@ -171,18 +171,16 @@
     var APP_PIN = "1207";
     var pickedFile = null;
 
-    // PIN Verification
     function verifyPin() {
-      var entered = document.getElementById('pinInput').value.trim();
+      var val = (document.getElementById('pinInput').value || '').trim();
       var err = document.getElementById('pinError');
-      if (entered === APP_PIN) {
+      if (val === APP_PIN) {
         sessionStorage.setItem('f8_auth', 'true');
         document.getElementById('pinScreen').classList.add('hidden');
         err.classList.add('hidden');
       } else {
         err.classList.remove('hidden');
         document.getElementById('pinInput').value = '';
-        document.getElementById('pinInput').focus();
       }
     }
 
@@ -191,10 +189,6 @@
         document.getElementById('pinScreen').classList.add('hidden');
       } else {
         document.getElementById('pinScreen').classList.remove('hidden');
-        setTimeout(function() {
-          var input = document.getElementById('pinInput');
-          if (input) input.focus();
-        }, 150);
       }
     }
 
@@ -205,18 +199,11 @@
     }
 
     document.getElementById('pinInput').addEventListener('input', function() {
-      if (this.value.length === 4) {
+      if (this.value.trim().length === 4) {
         verifyPin();
       }
     });
 
-    document.getElementById('pinInput').addEventListener('keyup', function(e) {
-      if (e.key === 'Enter') {
-        verifyPin();
-      }
-    });
-
-    // Native Contacts Picker
     async function pickContact() {
       if (navigator.contacts && navigator.contacts.select) {
         try {
@@ -232,11 +219,9 @@
             }
             updateNoticeText();
           }
-        } catch (ex) {
-          console.log(ex);
-        }
+        } catch (ex) {}
       } else {
-        alert('Browser contacts API కి support ఇవ్వలేదు. డైరెక్ట్‌గా టైప్ చేయండి.');
+        alert('డైరెక్ట్‌గా టైప్ చేయండి.');
       }
     }
 
@@ -246,7 +231,7 @@
         document.getElementById('fileBadge').classList.remove('hidden');
         var isImg = pickedFile.type.startsWith('image/');
         document.getElementById('fileBadgeText').innerText = isImg 
-          ? '📸 Photo: ' + (pickedFile.name || 'Captured Image') 
+          ? '📸 Photo: ' + (pickedFile.name || 'Doc') 
           : '📄 PDF: ' + pickedFile.name;
       }
     }
@@ -271,9 +256,9 @@
 
     function updateDateFromCalendar(val) {
       if (val) {
-        var parts = val.split('-');
-        if (parts.length === 3) {
-          document.getElementById('dueDateField').value = parts[2] + '/' + parts[1] + '/' + parts[0];
+        var p = val.split('-');
+        if (p.length === 3) {
+          document.getElementById('dueDateField').value = p[2] + '/' + p[1] + '/' + p[0];
           updateNoticeText();
         }
       }
@@ -285,7 +270,6 @@
       var doc = document.getElementById('docName').value.trim() || '[రిఫరెన్స్ వివరాలు]';
       var dateVal = document.getElementById('dueDateField').value.trim();
       var days = document.getElementById('daysSelect').value || '3';
-
       var catText = category ? ' (' + category + ')' : '';
 
       var text = '*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n' +
@@ -328,13 +312,11 @@
       var msg = document.getElementById('customMsg').value;
 
       if (!category) {
-        alert('దయచేసి విభాగం (Category) ఎంచుకోండి!');
-        document.getElementById('categorySelect').focus();
+        alert('దయచేసి విభాగం ఎంచుకోండి!');
         return;
       }
-
       if (!name || !rawPhone || !doc || !dueDateVal) {
-        alert('దయచేసి వివరాలన్నీ నమోదు చేయండి!');
+        alert('వివరాలన్నీ నమోదు చేయండి!');
         return;
       }
 
@@ -388,11 +370,7 @@
 
       if (pickedFile && navigator.canShare && navigator.canShare({ files: [pickedFile] })) {
         try {
-          await navigator.share({
-            files: [pickedFile],
-            title: category + ': ' + doc,
-            text: msg
-          });
+          await navigator.share({ files: [pickedFile], title: category + ': ' + doc, text: msg });
           return;
         } catch (e) {}
       }
@@ -403,11 +381,11 @@
     function viewAttachment(id) {
       var item = getEntries().find(function(r) { return r.id === id; });
       if (item && item.fileData) {
-        var newWindow = window.open();
+        var w = window.open();
         if (item.fileType === 'IMAGE') {
-          newWindow.document.write('<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;"><img src="' + item.fileData + '" style="max-width:100%;max-height:100vh;object-fit:contain;"></body>');
+          w.document.write('<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;"><img src="' + item.fileData + '" style="max-width:100%;max-height:100vh;"></body>');
         } else {
-          newWindow.document.write('<iframe src="' + item.fileData + '" frameborder="0" style="border:0;width:100%;height:100%;" allowfullscreen></iframe>');
+          w.document.write('<iframe src="' + item.fileData + '" frameborder="0" style="border:0;width:100%;height:100%;"></iframe>');
         }
       }
     }
@@ -421,7 +399,7 @@
     function sendReminder(phone, name, docName, dueDateStr, category) {
       var text = '*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n' +
                  '*అత్యవసర రిమైండర్:*\n' + name + ' గారు, మీకు ఇచ్చిన *' + docName + '* (' + (category || 'ఫైల్') + ') విచారణ గడువు తేదీ (*' + dueDateStr + '*) ముగిసినది.\n\n' +
-                 'మీరు నివేదిక సమర్పించడంలో ఆలస్యం (Delay) చేస్తున్నారు. దయచేసి వెంటనే విచారణ నివేదికను సమర్పించగలరు.\n\n' +
+                 'దయచేసి వెంటనే విచారణ నివేదికను కార్యాలయానికి సమర్పించగలరు.\n\n' +
                  'ఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*';
       window.location.href = 'https://api.whatsapp.com/send?phone=91' + phone + '&text=' + encodeURIComponent(text);
     }
@@ -437,4 +415,18 @@
       var container = document.getElementById('recordList');
       if (!container) return;
 
-      var pendingCount = list.filter(function(item) { return item.status === 'P
+      var pendingCount = list.filter(function(item) { return item.status === 'PENDING'; }).length;
+      document.getElementById('pendingCount').innerText = pendingCount + ' Pending';
+
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">ఇంకా ఎలాంటి రికార్డులు లేవు.</p>';
+        return;
+      }
+
+      container.innerHTML = list.map(function(item) {
+        return '<div class="border rounded-xl p-3 bg-slate-50 space-y-2 text-xs">' +
+            '<div class="flex justify-between items-start">' +
+              '<div>' +
+                '<div class="flex items-center gap-1.5">' +
+                  '<p class="font-bold text-sm text-slate-800">' + item.name + '</p>' +
+                  '<span class="bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0.2 rounded font-bold">' + (item.category || 'Mutations') + '</span
