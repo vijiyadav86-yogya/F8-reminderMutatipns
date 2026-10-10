@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>పెండింగ్ రిపోర్ట్ - తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 min-h-screen p-3 text-slate-800">
+
+  <div class="max-w-md mx-auto space-y-4">
+    
+    <!-- Header -->
+    <div class="bg-indigo-800 text-white p-5 rounded-2xl shadow border-b-4 border-amber-500 flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-chart-pie text-2xl text-amber-400"></i>
+        <div>
+          <h1 class="text-base font-bold">సిబ్బంది వారీగా పెండింగ్ రిపోర్ట్</h1>
+          <p class="text-indigo-200 text-xs">తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు</p>
+        </div>
+      </div>
+      <a href="./" class="bg-indigo-700 hover:bg-indigo-600 text-white text-xs px-2.5 py-1.5 rounded-lg border border-indigo-400 font-bold">
+        ← హోమ్
+      </a>
+    </div>
+
+    <!-- Summary Counts -->
+    <div class="grid grid-cols-2 gap-2">
+      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
+        <p class="text-[11px] text-slate-500 font-bold">మొత్తం పెండింగ్ ఫైళ్లు</p>
+        <p id="totalPendingCount" class="text-xl font-black text-indigo-700">0</p>
+      </div>
+      <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
+        <p class="text-[11px] text-slate-500 font-bold">బాకీ ఉన్న సిబ్బంది</p>
+        <p id="totalStaffCount" class="text-xl font-black text-amber-600">0</p>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="flex gap-2">
+      <button onclick="copyReport()" class="flex-1 bg-indigo-600 active:bg-indigo-800 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
+        <i class="fas fa-copy"></i> రిపోర్ట్ కాపీ చేయి
+      </button>
+      <button onclick="shareReportWhatsApp()" class="flex-1 bg-emerald-600 active:bg-emerald-800 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow">
+        <i class="fab fa-whatsapp text-sm"></i> వాట్సాప్‌లో పంపు
+      </button>
+    </div>
+
+    <!-- List of Staff with Pending Days -->
+    <div id="reportList" class="space-y-3"></div>
+
+  </div>
+
+  <script>
+    function getEntries() {
+      try {
+        return JSON.parse(localStorage.getItem('f8_records') || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function calculateDaysSince(sentDateStr) {
+      if (!sentDateStr) return 0;
+      var p = sentDateStr.split('/');
+      if (p.length !== 3) return 0;
+      var sent = new Date(p[2], parseInt(p[1], 10) - 1, p[0]);
+      var now = new Date();
+      sent.setHours(0,0,0,0);
+      now.setHours(0,0,0,0);
+      var diffDays = Math.floor((now - sent) / (1000 * 60 * 60 * 24));
+      return diffDays >= 0 ? diffDays : 0;
+    }
+
+    function buildData() {
+      var all = getEntries();
+      var pending = all.filter(function(r) { return r.status === 'PENDING'; });
+      var map = {};
+
+      pending.forEach(function(item) {
+        var days = calculateDaysSince(item.sentDate);
+        if (!map[item.name]) {
+          map[item.name] = {
+            name: item.name,
+            phone: item.phone,
+            total: 0,
+            maxDays: 0,
+            files: []
+          };
+        }
+        map[item.name].total++;
+        if (days > map[item.name].maxDays) map[item.name].maxDays = days;
+        map[item.name].files.push({
+          doc: item.docName,
+          cat: item.category || 'General',
+          days: days,
+          dueDate: item.dueDate
+        });
+      });
+
+      return {
+        totalPending: pending.length,
+        staffList: Object.values(map)
+      };
+    }
+
+    function renderReport() {
+      var data = buildData();
+      document.getElementById('totalPendingCount').innerText = data.totalPending;
+      document.getElementById('totalStaffCount').innerText = data.staffList.length;
+
+      var container = document.getElementById('reportList');
+      if (data.staffList.length === 0) {
+        container.innerHTML = '<div class="bg-white p-6 rounded-2xl text-center text-slate-400 border border-slate-200"><i class="fas fa-check-circle text-emerald-500 text-3xl mb-2"></i><p class="text-xs font-bold">ప్రస్తుతం ఎలాంటి పెండింగ్ రికార్డులు లేవు!</p></div>';
+        return;
+      }
+
+      container.innerHTML = data.staffList.map(function(s) {
+        return '<div class="bg-white border rounded-2xl p-4 shadow-sm space-y-2.5">' +
+          '<div class="flex justify-between items-center border-b pb-2">' +
+            '<div>' +
+              '<h3 class="font-bold text-sm text-slate-800">' + s.name + '</h3>' +
+              '<p class="text-[11px] text-slate-500 font-mono">+91 ' + s.phone + '</p>' +
+            '</div>' +
+            '<div class="text-right">' +
+              '<span class="bg-red-100 text-red-700 px-2.5 py-0.5 rounded-full font-bold text-[10px]">' + s.total + ' ఫైళ్లు</span>' +
+              '<p class="text-[10px] font-bold text-red-600 mt-1">గరిష్టంగా ' + s.maxDays + ' రోజుల నుండి</p>' +
+            '</div>' +
+          '</div>' +
+          '<div class="space-y-1.5">' +
+            s.files.map(function(f) {
+              return '<div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg text-xs border border-slate-100">' +
+                '<div class="truncate max-w-[210px]">' +
+                  '<p class="font-bold text-slate-800 truncate">' + f.doc + '</p>' +
+                  '<p class="text-[10px] text-slate-500">' + f.cat + ' | చివరి తేదీ: ' + f.dueDate + '</p>' +
+                '</div>' +
+                '<span class="px-2 py-0.5 rounded text-[11px] font-extrabold ' + (f.days > 3 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800') + '">' +
+                  f.days + ' రోజులు' +
+                '</span>' +
+              '</div>';
+            }).join('') +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function getReportText() {
+      var data = buildData();
+      if (data.staffList.length === 0) return "తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు: ప్రస్తుతం ఎలాంటి పెండింగ్ ఫైళ్లు లేవు.";
+
+      var txt = "*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు*\n*సిబ్బంది వారీగా పెండింగ్ ఫైళ్ల వివరాలు:*\n----------------------------------\n";
+      data.staffList.forEach(function(s, idx) {
+        txt += (idx + 1) + ". *" + s.name + "* (మొత్తం పెండింగ్: " + s.total + ")\n";
+        s.files.forEach(function(f) {
+          txt += "   • " + f.doc + " [" + f.cat + "] -> *" + f.days + " రోజుల నుండి పెండింగ్*\n";
+        });
+        txt += "\n";
+      });
+      txt += "దయచేసి పై ఫైళ్లను వెంటనే పరిష్కరించి నివేదిక సమర్పించగలరు.";
+      return txt;
+    }
+
+    function copyReport() {
+      navigator.clipboard.writeText(getReportText()).then(function() {
+        alert("పెండింగ్ రిపోర్ట్ కాపీ అయింది! మీరు వాట్సాప్ గ్రూప్‌లో పేస్ట్ చేసుకోవచ్చు.");
+      });
+    }
+
+    function shareReportWhatsApp() {
+      window.location.href = "https://api.whatsapp.com/send?text=" + encodeURIComponent(getReportText());
+    }
+
+    window.onload = renderReport;
+  </script>
+</body>
+</html>
