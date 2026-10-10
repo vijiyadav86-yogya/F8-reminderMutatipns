@@ -9,7 +9,7 @@
 </head>
 <body class="bg-slate-100 min-h-screen p-3 text-slate-800">
 
-  <!-- 1. Security PIN Screen (PIN: 1207) -->
+  <!-- 1. సెక్యూరిటీ పిన్ స్క్రీన్ (PIN: 1207) -->
   <div id="loginScreen" class="fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl text-center space-y-4">
       <div class="w-14 h-14 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center mx-auto text-2xl">
@@ -29,7 +29,39 @@
     </div>
   </div>
 
-  <!-- 2. Main App -->
+  <!-- 2. కేటగిరీ ఎంపిక స్క్రీన్ (1st Dropdown Step) -->
+  <div id="categoryScreen" class="max-w-md mx-auto space-y-4 hidden pt-6">
+    <div class="bg-indigo-800 text-white p-5 rounded-2xl shadow border-b-4 border-amber-500 text-center">
+      <i class="fas fa-landmark text-3xl text-amber-400 mb-2"></i>
+      <h1 class="text-base font-bold">తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు</h1>
+      <p class="text-indigo-200 text-xs mt-1">అధికారిక రికార్డుల ట్రాకింగ్ సిస్టమ్</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow border border-slate-200 space-y-4 text-center">
+      <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center mx-auto text-xl">
+        <i class="fas fa-layer-group"></i>
+      </div>
+      <div>
+        <h2 class="text-sm font-bold text-slate-800">విభాగాన్ని ఎంచుకోండి (Select Category)</h2>
+        <p class="text-xs text-slate-500 mt-1">ముందుగా మీరు పంపాలనుకుంటున్న ఫైల్ రకాన్ని ఎంచుకోండి</p>
+      </div>
+
+      <select id="mainCategorySelect" class="w-full border-2 border-indigo-200 rounded-xl p-3 text-sm font-bold text-slate-700 bg-indigo-50/50 outline-none focus:border-indigo-600">
+        <option value="" disabled selected>-- ఇక్కడ ఎంచుకోండి --</option>
+        <option value="Mutations">1. Mutations (మ్యుటేషన్స్)</option>
+        <option value="PGRS">2. PGRS (ప్రజా సమస్యల పరిష్కార వేదిక)</option>
+        <option value="Mandala arjilu">3. Mandala arjilu (మండల అర్జీలు)</option>
+        <option value="Others">4. Others (ఇతరములు)</option>
+      </select>
+
+      <button onclick="proceedToDashboard()" class="w-full bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-3 rounded-xl text-sm shadow flex items-center justify-center gap-2">
+        <span>కొనసాగించండి (Continue)</span>
+        <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- 3. మెయిన్ వర్క్‌స్పేస్ (ఎంచుకున్న కేటగిరీతో ఎనేబుల్ అవుతుంది) -->
   <div id="mainApp" class="max-w-md mx-auto space-y-4 hidden">
     
     <!-- Header -->
@@ -38,12 +70,19 @@
         <i class="fas fa-landmark text-2xl text-amber-400"></i>
         <div>
           <h1 class="text-base font-bold">తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు</h1>
-          <p class="text-indigo-200 text-xs">F-8 మ్యుటేషన్ అధికారిక నోటీస్ ట్రాకర్</p>
+          <p class="text-amber-300 font-bold text-xs mt-0.5 flex items-center gap-1">
+            <i class="fas fa-tag"></i> విభాగం: <span id="currentCategoryBadge"></span>
+          </p>
         </div>
       </div>
-      <button onclick="logout()" title="లాగౌట్" class="text-indigo-200 hover:text-white text-xs bg-indigo-900/50 p-2 rounded-lg">
-        <i class="fas fa-sign-out-alt"></i>
-      </button>
+      <div class="flex gap-1.5">
+        <button onclick="switchCategory()" title="విభాగం మార్చండి" class="text-indigo-200 hover:text-white text-xs bg-indigo-900/60 p-2 rounded-lg">
+          <i class="fas fa-exchange-alt"></i>
+        </button>
+        <button onclick="logout()" title="లాగౌట్" class="text-indigo-200 hover:text-white text-xs bg-indigo-900/60 p-2 rounded-lg">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
     </div>
 
     <!-- Entry Form -->
@@ -70,8 +109,8 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold mb-1 text-slate-600">డాక్యుమెంట్ / F-8 నంబర్</label>
-        <input type="text" id="docName" oninput="updateMsg()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 Mutation Doc">
+        <label class="block text-xs font-semibold mb-1 text-slate-600">డాక్యుమెంట్ / రిఫరెన్స్ నంబర్</label>
+        <input type="text" id="docName" oninput="updateMsg()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: అర్జీ నంబర్ / ఫైల్ వివరాలు">
       </div>
 
       <!-- PDF File Upload Box -->
@@ -80,7 +119,7 @@
           <i class="fas fa-file-pdf text-red-500 text-base"></i> PDF డాక్యుమెంట్ ఎంచుకోండి
         </label>
         <input type="file" id="pdfFileInput" accept="application/pdf" class="w-full border rounded-xl p-2 text-xs text-slate-600 bg-white file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-700 file:text-white file:text-xs file:font-semibold">
-        <p class="text-[10px] text-slate-500">* PDF file select chesthe save ayyi, kinda record lo "PDF Chudu" option vasthundhi.</p>
+        <p class="text-[10px] text-slate-500">* PDF ఫైల్ సేవ్ అయి, కింద రికార్డులో చూసేందుకు అందుబాటులో ఉంటుంది.</p>
       </div>
 
       <!-- Due Date Selection -->
@@ -119,7 +158,7 @@
     <!-- Records Dashboard -->
     <div class="bg-white p-5 rounded-2xl shadow border border-slate-200">
       <div class="flex justify-between items-center mb-3">
-        <h2 class="text-sm font-bold text-slate-700">ట్రాకింగ్ రికార్డులు</h2>
+        <h2 class="text-sm font-bold text-slate-700">ట్రాకింగ్ రికార్డులు (<span id="recordCategoryFilterTitle">All</span>)</h2>
         <span id="pendingCount" class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-bold">0 Pending</span>
       </div>
       <div id="recordList" class="space-y-3"></div>
@@ -129,22 +168,44 @@
 
   <script>
     const SECRET_PIN = "1207";
+    let selectedCategory = "";
 
     function checkAccess() {
       const entered = document.getElementById('accessPin').value;
       if (entered === SECRET_PIN) {
         localStorage.setItem('auth_token', 'AUTHORIZED_USER');
-        showApp();
+        document.getElementById('loginScreen').classList.add('hidden');
+        showCategorySelector();
       } else {
         document.getElementById('errorMsg').classList.remove('hidden');
       }
     }
 
-    function showApp() {
-      document.getElementById('loginScreen').classList.add('hidden');
+    function showCategorySelector() {
+      document.getElementById('categoryScreen').classList.remove('hidden');
+      document.getElementById('mainApp').classList.add('hidden');
+    }
+
+    function proceedToDashboard() {
+      const cat = document.getElementById('mainCategorySelect').value;
+      if (!cat) {
+        alert("దయచేసి ఏదైనా ఒక విభాగాన్ని (Category) ఎంచుకోండి!");
+        return;
+      }
+      selectedCategory = cat;
+      document.getElementById('currentCategoryBadge').innerText = selectedCategory;
+      document.getElementById('recordCategoryFilterTitle').innerText = selectedCategory;
+      
+      document.getElementById('categoryScreen').classList.add('hidden');
       document.getElementById('mainApp').classList.remove('hidden');
+      
       changeDays();
       render();
+    }
+
+    function switchCategory() {
+      document.getElementById('mainCategorySelect').value = "";
+      showCategorySelector();
     }
 
     function logout() {
@@ -153,7 +214,8 @@
     }
 
     if (localStorage.getItem('auth_token') === 'AUTHORIZED_USER') {
-      showApp();
+      document.getElementById('loginScreen').classList.add('hidden');
+      showCategorySelector();
     }
 
     function formatDate(d) {
@@ -210,9 +272,10 @@
 
     function updateMsg() {
       const name = document.getElementById('name').value.trim() || '[గ్రహీత పేరు]';
-      const doc = document.getElementById('docName').value.trim() || '[F-8 నంబర్]';
+      const doc = document.getElementById('docName').value.trim() || '[ఫైల్ వివరాలు]';
       const dueDateVal = document.getElementById('dueDateInput').value;
       const days = calculateDiffDays(dueDateVal);
+      const catText = selectedCategory ? `(${selectedCategory})` : '';
 
       let dateStr = dueDateVal;
       if (dueDateVal) {
@@ -220,7 +283,7 @@
         if (parts.length === 3) dateStr = `${parts[2]}/${parts[1]}/${parts[0]}`;
       }
 
-      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${doc}* సంబంధించిన ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${days} రోజుల్లోగా* (చివరి తేదీ: *${dateStr}*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
+      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${doc}* సంబంధించిన ${catText} ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${days} రోజుల్లోగా* (చివరి తేదీ: *${dateStr}*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
       
       document.getElementById('customMsg').value = text;
     }
@@ -282,6 +345,7 @@
 
       const record = {
         id: Date.now(),
+        category: selectedCategory || 'Others',
         name,
         phone: cleanDigits,
         docName: doc,
@@ -309,7 +373,7 @@
         try {
           await navigator.share({
             files: [file],
-            title: `F-8: ${doc}`,
+            title: `${selectedCategory}: ${doc}`,
             text: msg
           });
           return;
@@ -335,8 +399,8 @@
       saveEntries(getEntries().map(item => item.id === id ? { ...item, status: 'RETURNED' } : item));
     }
 
-    function sendReminder(phone, name, docName, dueDateStr) {
-      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n*అత్యవసర రిమైండర్:*\n${name} గారు, మీకు ఇచ్చిన *${docName}* విచారణ గడువు తేదీ (*${dueDateStr}*) ముగిసినది.\n\nమీరు నివేదిక సమర్పించడంలో ఆలస్యం (Delay) చేస్తున్నారు. దయచేసి వెంటనే విచారణ నివేదికను సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
+    function sendReminder(phone, name, docName, dueDateStr, cat) {
+      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n*అత్యవసర రిమైండర్:*\n${name} గారు, మీకు ఇచ్చిన *${docName}* (${cat}) విచారణ గడువు తేదీ (*${dueDateStr}*) ముగిసినది.\n\nమీరు నివేదిక సమర్పించడంలో ఆలస్యం (Delay) చేస్తున్నారు. దయచేసి వెంటనే విచారణ నివేదికను సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
       window.location.href = `https://api.whatsapp.com/send?phone=91${phone}&text=${encodeURIComponent(text)}`;
     }
 
@@ -347,14 +411,15 @@
     }
 
     function render() {
-      const list = getEntries();
+      const allList = getEntries();
+      const list = allList.filter(item => !selectedCategory || item.category === selectedCategory);
       const container = document.getElementById('recordList');
       const today = formatDate(new Date());
 
       document.getElementById('pendingCount').innerText = `${list.filter(item => item.status === 'PENDING').length} Pending`;
 
       if (list.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">ఇంకా ఎలాంటి రికార్డులు లేవు.</p>';
+        container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">${selectedCategory} విభాగంలో ఇంకా ఎలాంటి రికార్డులు లేవు.</p>`;
         return;
       }
 
@@ -364,71 +429,12 @@
           <div class="border rounded-xl p-3 bg-slate-50 space-y-2 text-xs">
             <div class="flex justify-between items-start">
               <div>
-                <p class="font-bold text-sm text-slate-800">${item.name}</p>
-                <p class="text-slate-500 font-mono text-[11px]">+91 ${item.phone}</p>
+                <div class="flex items-center gap-1.5">
+                  <p class="font-bold text-sm text-slate-800">${item.name}</p>
+                  <span class="bg-indigo-100 text-indigo-700 text-[10px] px-1.5 py-0.2 rounded font-semibold">${item.category}</span>
+                </div>
+                <p class="text-slate-500 font-mono text-[11px] mt-0.5">+91 ${item.phone}</p>
                 <p class="text-indigo-700 font-semibold mt-0.5">${item.docName}</p>
                 ${item.pdfName ? `
                   <p class="text-slate-500 text-[10px] mt-0.5 flex items-center gap-1">
-                    <i class="fas fa-paperclip text-red-500"></i> ${item.pdfName}
-                  </p>
-                ` : ''}
-              </div>
-              <div class="flex flex-col items-end gap-1">
-                ${item.status === 'RETURNED' 
-                  ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold text-[10px]">✓ రిపోర్ట్ వచ్చింది</span>' 
-                  : isOverdue 
-                    ? '<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold text-[10px] animate-pulse">Overdue (ఆలస్యం)</span>' 
-                    : '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold text-[10px]">పెండింగ్</span>'}
-                <span class="text-[10px] text-slate-400 font-medium">గడువు: ${item.daysAllowed} రోజులు</span>
-              </div>
-            </div>
-
-            <div class="flex justify-between text-slate-500 border-t pt-2 text-[11px]">
-              <span>పంపినది: <b>${item.sentDate}</b></span>
-              <span>చివరి తేదీ: <b class="${isOverdue ? 'text-red-600' : ''}">${item.dueDate}</b></span>
-            </div>
-
-            <div class="flex flex-wrap gap-1.5 pt-1 border-t">
-              ${item.pdfData ? `
-                <button onclick="viewSavedPdf(${item.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-2.5 py-1.5 rounded-lg text-center flex items-center gap-1">
-                  <i class="fas fa-eye text-indigo-600"></i> PDF చూడు
-                </button>
-              ` : ''}
-
-              ${item.status === 'PENDING' ? `
-                <button onclick="sendReminder('${item.phone}', '${item.name}', '${item.docName}', '${item.dueDate}')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
-                  🔔 రిమైండ్
-                </button>
-                <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
-                  ✓ రిటర్న్
-                </button>
-              ` : '<span class="flex-1 text-slate-400 py-1.5 text-center font-bold">పూర్తయింది</span>'}
-
-              <button onclick="deleteRecord(${item.id})" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg hover:text-red-600">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function pickContact() {
-      if ('contacts' in navigator && 'ContactsManager' in window) {
-        try {
-          const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
-          if (contacts.length > 0) {
-            if (contacts[0].name?.[0]) document.getElementById('name').value = contacts[0].name[0];
-            if (contacts[0].tel?.[0]) {
-              let clean = contacts[0].tel[0].replace(/[^0-9]/g, '');
-              if (clean.length > 10) clean = clean.slice(-10);
-              document.getElementById('phone').value = clean;
-            }
-            updateMsg();
-          }
-        } catch (ex) {}
-      }
-    }
-  </script>
-</body>
-</html>
+                    <i class="fas fa-paperclip text
