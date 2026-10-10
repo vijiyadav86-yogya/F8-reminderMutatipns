@@ -37,8 +37,7 @@
           <i class="fas fa-list-check text-amber-600"></i> విభాగం ఎంచుకోండి (Category) <span class="text-red-500">*</span>
         </label>
         <select id="categorySelect" onchange="updateMsg()" class="w-full border-2 border-amber-300 rounded-xl p-2.5 text-xs font-bold text-slate-800 bg-white outline-none focus:border-indigo-600">
-          <option value="" selected disabled>-- Select / ఎంచుకోండి --</option>
-          <option value="Mutations">1. Mutations (మ్యుటేషన్స్)</option>
+          <option value="Mutations" selected>1. Mutations (మ్యుటేషన్స్)</option>
           <option value="PGRS">2. PGRS (ప్రజా సమస్యల పరిష్కార వేదిక)</option>
           <option value="Mandala arjilu">3. Mandala arjilu (మండల అర్జీలు)</option>
           <option value="Others">4. Others (ఇతరములు)</option>
@@ -71,42 +70,41 @@
         </label>
         
         <div class="grid grid-cols-2 gap-2">
-          <!-- Button 1: Camera Shot -->
-          <label class="cursor-pointer bg-emerald-600 active:bg-emerald-700 text-white p-2.5 rounded-xl text-center flex flex-col items-center justify-center gap-1 shadow">
-            <i class="fas fa-camera text-xl"></i>
-            <span class="text-xs font-bold">కెమెరా ఓపెన్ చేయి</span>
-            <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="fileChosen(this)" class="hidden">
+          <label class="cursor-pointer bg-white border border-indigo-300 hover:bg-indigo-50 p-2.5 rounded-xl text-center flex flex-col items-center justify-center gap-1 shadow-sm">
+            <i class="fas fa-paperclip text-indigo-600 text-lg"></i>
+            <span class="text-[11px] font-bold text-slate-700">PDF / ఫైల్ ఎంచుకోండి</span>
+            <input type="file" id="fileInput" accept="application/pdf,image/*" onchange="fileChosen(this)" class="hidden">
           </label>
 
-          <!-- Button 2: PDF / Files -->
-          <label class="cursor-pointer bg-indigo-700 active:bg-indigo-800 text-white p-2.5 rounded-xl text-center flex flex-col items-center justify-center gap-1 shadow">
-            <i class="fas fa-file-pdf text-xl"></i>
-            <span class="text-xs font-bold">PDF / ఫైల్స్</span>
-            <input type="file" id="fileInput" accept="application/pdf,image/*" onchange="fileChosen(this)" class="hidden">
+          <label class="cursor-pointer bg-white border border-emerald-300 hover:bg-emerald-50 p-2.5 rounded-xl text-center flex flex-col items-center justify-center gap-1 shadow-sm">
+            <i class="fas fa-camera text-emerald-600 text-lg"></i>
+            <span class="text-[11px] font-bold text-slate-700">కెమెరాతో ఫోటో తీయి</span>
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="fileChosen(this)" class="hidden">
           </label>
         </div>
 
         <div id="fileBadge" class="hidden bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs p-2 rounded-xl font-bold flex items-center justify-between">
           <span id="fileBadgeText" class="truncate max-w-[220px]"></span>
-          <button type="button" onclick="removeFile()" class="text-red-600 font-extrabold ml-2">✕ Remove</button>
+          <button type="button" onclick="removeFile()" class="text-red-600 font-extrabold ml-2">✕ తీసివేయి</button>
         </div>
       </div>
 
-      <!-- Manual Due Date Selection -->
-      <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+      <!-- Due Date Selection (Dropdown + Calendar) -->
+      <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 mb-1">
-            📅 గడువు తేదీ (Due Date Manual Entry) <span class="text-red-500">*</span>
-          </label>
-          <input type="date" id="dueDateInput" oninput="onDatePicked()" onchange="onDatePicked()" class="w-full border-2 border-indigo-300 rounded-xl p-2.5 text-sm bg-white font-bold outline-none focus:border-indigo-600">
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు రోజులు</label>
+          <select id="daysSelect" onchange="handleDaysSelectChange()" class="w-full border rounded-lg p-2 text-xs bg-white outline-none">
+            <option value="1">1 రోజు</option>
+            <option value="2">2 రోజులు</option>
+            <option value="7">7 రోజులు</option>
+            <option value="15" selected>15 రోజులు</option>
+            <option value="30">30 రోజులు</option>
+          </select>
         </div>
-        <div class="flex gap-1.5 pt-1">
-          <button type="button" onclick="setQuickDays(2)" class="flex-1 bg-white border border-slate-300 text-slate-700 py-1 text-xs rounded-lg font-semibold hover:bg-slate-100">2 Days</button>
-          <button type="button" onclick="setQuickDays(7)" class="flex-1 bg-white border border-slate-300 text-slate-700 py-1 text-xs rounded-lg font-semibold hover:bg-slate-100">7 Days</button>
-          <button type="button" onclick="setQuickDays(15)" class="flex-1 bg-white border border-slate-300 text-slate-700 py-1 text-xs rounded-lg font-semibold hover:bg-slate-100">15 Days</button>
-          <button type="button" onclick="setQuickDays(30)" class="flex-1 bg-white border border-slate-300 text-slate-700 py-1 text-xs rounded-lg font-semibold hover:bg-slate-100">30 Days</button>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు తేదీ (Due Date)</label>
+          <input type="date" id="dueDateInput" oninput="handleManualDateInput()" onchange="handleManualDateInput()" class="w-full border rounded-lg p-1.5 text-xs bg-white font-semibold outline-none focus:border-indigo-600">
         </div>
-        <p id="dateHint" class="text-[10px] text-indigo-700 font-medium">* Date meeda tap chesi direct ga calendar lo thedi select cheyandi.</p>
       </div>
 
       <!-- Message Preview Box -->
@@ -160,50 +158,39 @@
     }
 
     function initDefaultDate() {
-      const target = new Date();
-      target.setDate(target.getDate() + 15);
-      document.getElementById('dueDateInput').value = formatDate(target);
-      onDatePicked();
-    }
-
-    function setQuickDays(days) {
+      const days = parseInt(document.getElementById('daysSelect').value, 10) || 15;
       const target = new Date();
       target.setDate(target.getDate() + days);
       document.getElementById('dueDateInput').value = formatDate(target);
-      onDatePicked();
+      updateMsg();
     }
 
-    function onDatePicked() {
-      const val = document.getElementById('dueDateInput').value;
-      const hint = document.getElementById('dateHint');
-      if (val) {
-        const selDate = new Date(val);
-        const today = new Date();
-        today.setHours(0,0,0,0);
-        selDate.setHours(0,0,0,0);
-        const diffDays = Math.round((selDate - today) / (1000 * 60 * 60 * 24));
-        
-        if (hint) {
-          hint.innerText = diffDays > 0 
-            ? `* Enchukunna thedi varaku sarigga ${diffDays} rojula gaduvu undi (${selDate.toLocaleDateString('en-GB')}).` 
-            : `* Enchukunna thedi: ${selDate.toLocaleDateString('en-GB')}`;
-        }
-      }
+    function handleDaysSelectChange() {
+      const days = parseInt(document.getElementById('daysSelect').value, 10);
+      const target = new Date();
+      target.setDate(target.getDate() + days);
+      document.getElementById('dueDateInput').value = formatDate(target);
+      updateMsg();
+    }
+
+    function handleManualDateInput() {
       updateMsg();
     }
 
     function calculateDiffDays(dueDateVal) {
       if (!dueDateVal) return 15;
-      const selDate = new Date(dueDateVal);
+      const parts = dueDateVal.split('-');
+      if (parts.length !== 3) return 15;
+      const selDate = new Date(parts[0], parts[1] - 1, parts[2]);
       const today = new Date();
-      today.setHours(0,0,0,0);
-      selDate.setHours(0,0,0,0);
+      today.setHours(0, 0, 0, 0);
+      selDate.setHours(0, 0, 0, 0);
       const diff = Math.round((selDate - today) / (1000 * 60 * 60 * 24));
       return diff > 0 ? diff : 1;
     }
 
     function updateMsg() {
-      const category = document.getElementById('categorySelect').value;
+      const category = document.getElementById('categorySelect').value || 'Mutations';
       const name = document.getElementById('name').value.trim() || '[గ్రహీత పేరు]';
       const doc = document.getElementById('docName').value.trim() || '[రిఫరెన్స్ వివరాలు]';
       const dueDateVal = document.getElementById('dueDateInput').value;
@@ -215,9 +202,7 @@
         if (parts.length === 3) dateStr = `${parts[2]}/${parts[1]}/${parts[0]}`;
       }
 
-      const catText = category ? `(${category})` : '';
-
-      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${doc}* సంబంధించిన ${catText} ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${days} రోజుల్లోగా* (చివరి తేదీ: *${dateStr}*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
+      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${doc}* సంబంధించిన (${category}) ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${days} రోజుల్లోగా* (చివరి తేదీ: *${dateStr}*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
       
       document.getElementById('customMsg').value = text;
     }
@@ -248,21 +233,15 @@
       const dueDateVal = document.getElementById('dueDateInput').value;
       const msg = document.getElementById('customMsg').value;
 
-      if (!category) {
-        alert('Dayachesi modatlo Vibhagam (Category) enchukondi!');
-        document.getElementById('categorySelect').focus();
-        return;
-      }
-
       if (!name || !rawPhone || !doc || !dueDateVal) {
-        alert('Dayachesi peru, phone number, document vivaralu mariyu gaduvu thedi enter cheyandi!');
+        alert('దయచేసి పేరు, ఫోన్ నంబర్, డాక్యుమెంట్ వివరాలు మరియు గడువు తేదీని నమోదు చేయండి!');
         return;
       }
 
       let cleanDigits = rawPhone.replace(/[^0-9]/g, '');
       if (cleanDigits.length > 10) cleanDigits = cleanDigits.slice(-10);
       if (cleanDigits.length !== 10) {
-        alert('Saraina 10 ankela mobile number ivvandi!');
+        alert('సరైన 10 అంకెల మొబైల్ నంబర్ ఇవ్వండి!');
         return;
       }
 
@@ -308,10 +287,9 @@
       document.getElementById('name').value = '';
       document.getElementById('phone').value = '';
       document.getElementById('docName').value = '';
-      document.getElementById('categorySelect').value = '';
       removeFile();
+      document.getElementById('daysSelect').value = '15';
       initDefaultDate();
-      updateMsg();
 
       if (pickedFile && navigator.canShare && navigator.canShare({ files: [pickedFile] })) {
         try {
@@ -339,7 +317,7 @@
           newWindow.document.write(`<iframe src="${item.fileData}" frameborder="0" style="border:0;width:100%;height:100%;" allowfullscreen></iframe>`);
         }
       } else {
-        alert("Ee record ki file ledu!");
+        alert("ఈ రికార్డుకు ఫైల్ లేదా ఫోటో జతచేయబడలేదు!");
       }
     }
 
@@ -353,7 +331,7 @@
     }
 
     function deleteRecord(id) {
-      if (confirm('Ee record ni delete cheyalani anukuntunnara?')) {
+      if (confirm('ఈ రికార్డును తొలగించాలనుకుంటున్నారా?')) {
         saveEntries(getEntries().filter(item => item.id !== id));
       }
     }
@@ -370,7 +348,7 @@
       }
 
       if (list.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Inka elanti records levu.</p>';
+        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">ఇంకా ఎలాంటి రికార్డులు లేవు.</p>';
         return;
       }
 
@@ -410,9 +388,31 @@
             <div class="flex flex-wrap gap-1.5 pt-1 border-t">
               ${item.fileData ? `
                 <button onclick="viewAttachment(${item.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-2.5 py-1.5 rounded-lg text-center flex items-center gap-1">
-                  <i class="fas ${item.fileType === 'IMAGE' ? 'fa-camera text-emerald-600' : 'fa-eye text-indigo-600'}"></i> ${item.fileType === 'IMAGE' ? 'ఫోటో చూడు' : 'PDF చూడు'}
+                  <i class="fas ${item.fileType === 'IMAGE' ? 'fa-image text-emerald-600' : 'fa-eye text-indigo-600'}"></i> ${item.fileType === 'IMAGE' ? 'ఫోటో చూడు' : 'PDF చూడు'}
                 </button>
               ` : ''}
 
               ${item.status === 'PENDING' ? `
-                <button onclick="sendReminder('${item.phone}', '${item.name}', 
+                <button onclick="sendReminder('${item.phone}', '${item.name}', '${item.docName}', '${item.dueDate}', '${item.category || 'Mutations'}')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
+                  🔔 రిమైండ్
+                </button>
+                <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
+                  ✓ రిటర్న్
+                </button>
+              ` : '<span class="flex-1 text-slate-400 py-1.5 text-center font-bold">పూర్తయింది</span>'}
+
+              <button onclick="deleteRecord(${item.id})" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg hover:text-red-600">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function pickContact() {
+      if ('contacts' in navigator && 'ContactsManager' in window) {
+        try {
+          const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
+          if (contacts.length > 0) {
+            if (contacts[0].name?.[0]) document.getElementById('name').value
