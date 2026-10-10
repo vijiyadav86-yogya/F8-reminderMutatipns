@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Tahsildar Office, Peddavaduguru</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -22,7 +25,7 @@
       </div>
     </div>
 
-    <!-- Auto Overdue Reminder Bar -->
+    <!-- Auto Overdue Alert Bar -->
     <div id="overdueAlertBox" class="hidden bg-red-50 border-2 border-red-400 p-3.5 rounded-2xl space-y-2">
       <div class="flex items-center justify-between text-xs font-bold text-red-800">
         <span class="flex items-center gap-1.5">
@@ -33,9 +36,6 @@
           <i class="fab fa-whatsapp"></i> ఆటో రిమైండర్ పంపు
         </button>
       </div>
-      <p class="text-[10px] text-red-700 leading-tight">
-        * గడువు తేదీ దాటిన రికార్డులకు సిస్టమ్ ఆటోమేటిక్‌గా రిమైండర్ మెసేజ్ పంపుతుంది.
-      </p>
     </div>
 
     <!-- Entry Form -->
@@ -103,20 +103,26 @@
         </div>
       </div>
 
-      <!-- Days Input & Automatic Date Calculation -->
-      <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
-        <div>
-          <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు రోజులు (Type Days)</label>
-          <input type="number" id="daysInput" value="3" min="1" max="365" oninput="calculateDueDate()" class="w-full border-2 border-indigo-400 rounded-lg p-2 text-xs bg-white font-extrabold outline-none text-center focus:border-indigo-600" placeholder="3">
-        </div>
-        <div>
-          <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు తేదీ (Due Date)</label>
-          <div class="flex items-center gap-1">
-            <input type="text" id="dueDateField" value="13/10/2026" oninput="renderNotice()" class="w-full border-2 border-indigo-400 rounded-lg p-2 text-xs bg-white font-extrabold outline-none text-center" placeholder="DD/MM/YYYY">
-            <label class="cursor-pointer bg-indigo-700 hover:bg-indigo-800 text-white px-2.5 py-2 rounded-lg text-xs font-bold flex items-center justify-center shadow">
-              <i class="fas fa-calendar-alt"></i>
-              <input type="date" id="calendarPicker" onchange="pickCalendarDate(this.value)" class="hidden">
-            </label>
+      <!-- Due Days with Stepper (+ / -) & Auto Date Calculation -->
+      <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు రోజులు:</label>
+            <div class="flex items-center">
+              <button type="button" onclick="stepDays(-1)" class="bg-slate-200 active:bg-slate-300 px-3 py-2 rounded-l-lg font-extrabold text-sm border">-</button>
+              <input type="number" id="daysInput" value="3" min="1" max="365" oninput="calculateDueDate()" onkeyup="calculateDueDate()" onchange="calculateDueDate()" class="w-full border-y border-slate-300 p-2 text-xs bg-white font-extrabold outline-none text-center focus:border-indigo-600" placeholder="3">
+              <button type="button" onclick="stepDays(1)" class="bg-slate-200 active:bg-slate-300 px-3 py-2 rounded-r-lg font-extrabold text-sm border">+</button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు తేదీ (Due Date):</label>
+            <div class="flex items-center gap-1">
+              <input type="text" id="dueDateField" value="13/10/2026" oninput="renderNotice()" class="w-full border-2 border-indigo-400 rounded-lg p-2 text-xs bg-white font-extrabold outline-none text-center" placeholder="DD/MM/YYYY">
+              <label class="cursor-pointer bg-indigo-700 hover:bg-indigo-800 text-white px-2.5 py-2 rounded-lg text-xs font-bold flex items-center justify-center shadow">
+                <i class="fas fa-calendar-alt"></i>
+                <input type="date" id="calendarPicker" onchange="pickCalendarDate(this.value)" class="hidden">
+              </label>
+            </div>
           </div>
         </div>
       </div>
@@ -164,9 +170,7 @@
             var contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
             if (contacts && contacts[0]) {
               var c = contacts[0];
-              if (c.name && c.name[0]) {
-                document.getElementById('name').value = c.name[0];
-              }
+              if (c.name && c.name[0]) document.getElementById('name').value = c.name[0];
               if (c.tel && c.tel[0]) {
                 var clean = c.tel[0].replace(/[^0-9]/g, '');
                 if (clean.length > 10) clean = clean.slice(-10);
@@ -175,7 +179,7 @@
               renderNotice();
             }
           } catch (e) {
-            console.log('Picker closed or blocked:', e);
+            console.log('Picker closed:', e);
           }
         } else {
           alert('మీ బ్రౌజర్‌లో కాంటాక్ట్ యాక్సెస్ అనుమతి లేదు. దయచేసి నేరుగా పేరు, నంబర్ టైప్ చేయండి.');
@@ -199,6 +203,15 @@
       document.getElementById('cameraInput').value = '';
       document.getElementById('fileInput').value = '';
       document.getElementById('fileBadge').classList.add('hidden');
+    }
+
+    function stepDays(delta) {
+      var inp = document.getElementById('daysInput');
+      var current = parseInt(inp.value, 10) || 1;
+      var updated = current + delta;
+      if (updated < 1) updated = 1;
+      inp.value = updated;
+      calculateDueDate();
     }
 
     function calculateDueDate() {
@@ -315,7 +328,6 @@
       var today = new Date();
       var sentDateFormatted = String(today.getDate()).padStart(2, '0') + '/' + String(today.getMonth() + 1).padStart(2, '0') + '/' + today.getFullYear();
 
-      // Convert DD/MM/YYYY to YYYY-MM-DD for precise overdue comparison
       var rawDue = '';
       var dParts = dueDateVal.split('/');
       if (dParts.length === 3) {
@@ -390,7 +402,6 @@
       window.location.href = 'https://api.whatsapp.com/send?phone=91' + phone + '&text=' + encodeURIComponent(text);
     }
 
-    // Auto Overdue Send Button: Picks the top overdue pending record directly
     function sendNextOverdueReminder() {
       var list = getEntries();
       var today = new Date();
@@ -424,7 +435,6 @@
       var pendingCount = list.filter(function(item) { return item.status === 'PENDING'; }).length;
       document.getElementById('pendingCount').innerText = pendingCount + ' Pending';
 
-      // Check for overdue records
       var overdueList = list.filter(function(item) {
         return item.status === 'PENDING' && item.dueDateRaw && item.dueDateRaw < todayStr;
       });
@@ -433,4 +443,52 @@
       var badge = document.getElementById('overdueCountBadge');
       if (overdueList.length > 0) {
         alertBox.classList.remove('hidden');
-        badge.innerText = overdueList.le
+        badge.innerText = overdueList.length + ' రికార్డులు';
+      } else {
+        alertBox.classList.add('hidden');
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">ఇంకా ఎలాంటి రికార్డులు లేవు.</p>';
+        return;
+      }
+
+      container.innerHTML = list.map(function(item) {
+        var isOverdue = item.status === 'PENDING' && item.dueDateRaw && item.dueDateRaw < todayStr;
+
+        return '<div class="border rounded-xl p-3 ' + (isOverdue ? 'bg-red-50/60 border-red-300' : 'bg-slate-50') + ' space-y-2 text-xs">' +
+            '<div class="flex justify-between items-start">' +
+              '<div>' +
+                '<div class="flex items-center gap-1.5">' +
+                  '<p class="font-bold text-sm text-slate-800">' + item.name + '</p>' +
+                  '<span class="bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0.2 rounded font-bold">' + (item.category || 'Mutations') + '</span>' +
+                '</div>' +
+                '<p class="text-slate-500 font-mono text-[11px] mt-0.5">+91 ' + item.phone + '</p>' +
+                '<p class="text-indigo-700 font-semibold mt-0.5">' + item.docName + '</p>' +
+                (item.fileName ? ('<p class="text-slate-500 text-[10px] mt-0.5 flex items-center gap-1"><i class="fas ' + (item.fileType === 'IMAGE' ? 'fa-camera text-emerald-600' : 'fa-file-pdf text-red-500') + '"></i> ' + item.fileName + '</p>') : '') +
+              '</div>' +
+              '<div class="flex flex-col items-end gap-1">' +
+                (item.status === 'RETURNED' 
+                  ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold text-[10px]">✓ రిపోర్ట్ వచ్చింది</span>' 
+                  : '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold text-[10px]">పెండింగ్</span>') +
+                '<span class="text-[10px] text-slate-400 font-medium">గడువు: ' + item.daysAllowed + ' రోజులు</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="flex justify-between text-slate-500 border-t pt-2 text-[11px]">' +
+              '<span>పంపినది: <b>' + item.sentDate + '</b></span>' +
+              '<span>చివరి తేదీ: <b class="' + (isOverdue ? 'text-red-600 font-extrabold' : '') + '">' + item.dueDate + '</b></span>' +
+            '</div>' +
+            '<div class="flex flex-wrap gap-1.5 pt-1 border-t">' +
+              (item.fileData ? ('<button onclick="viewAttachment(' + item.id + ')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-2.5 py-1.5 rounded-lg text-center flex items-center gap-1"><i class="fas ' + (item.fileType === 'IMAGE' ? 'fa-image text-emerald-600' : 'fa-eye text-indigo-600') + '"></i> ' + (item.fileType === 'IMAGE' ? 'ఫోటో చూడు' : 'PDF చూడు') + '</button>') : '') +
+              (item.status === 'PENDING' ? ('<button onclick="sendReminder(\'' + item.phone + '\', \'' + item.name + '\', \'' + item.docName + '\', \'' + item.dueDate + '\', \'' + (item.category || 'Mutations') + '\')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">🔔 రిమైండ్</button><button onclick="markReturned(' + item.id + ')" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">✓ రిటర్న్</button>') : '<span class="flex-1 text-slate-400 py-1.5 text-center font-bold">పూర్తయింది</span>') +
+              '<button onclick="deleteRecord(' + item.id + ')" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg hover:text-red-600"><i class="fas fa-trash"></i></button>' +
+            '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    calculateDueDate();
+    renderDashboard();
+  </script>
+</body>
+</html>
