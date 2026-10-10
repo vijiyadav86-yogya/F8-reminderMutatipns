@@ -8,10 +8,32 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-100 min-h-screen p-3 text-slate-800">
-  <div class="max-w-md mx-auto space-y-4">
+
+  <!-- 1. Security Login Screen -->
+  <div id="loginScreen" class="fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl text-center space-y-4">
+      <div class="w-14 h-14 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center mx-auto text-2xl">
+        <i class="fas fa-lock"></i>
+      </div>
+      <div>
+        <h2 class="text-base font-bold text-slate-800">అధికారిక లాగిన్</h2>
+        <p class="text-xs text-slate-500 mt-1">తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు</p>
+      </div>
+      <div>
+        <input type="password" id="accessPin" maxlength="4" class="w-full text-center tracking-widest text-lg font-bold border rounded-xl p-2.5 outline-none focus:border-indigo-600" placeholder="••••">
+      </div>
+      <button onclick="checkAccess()" class="w-full bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-2.5 rounded-xl text-sm shadow">
+        యాక్సెస్ చేయండి
+      </button>
+      <p id="errorMsg" class="text-xs text-red-600 hidden font-bold">తప్పు పిన్! ప్రవేశం నిరాకరించబడింది.</p>
+    </div>
+  </div>
+
+  <!-- 2. Main Application -->
+  <div id="mainApp" class="max-w-md mx-auto space-y-4 hidden">
     
     <!-- Header -->
-    <div class="bg-indigo-800 text-white p-5 rounded-2xl shadow border-b-4 border-amber-500">
+    <div class="bg-indigo-800 text-white p-5 rounded-2xl shadow border-b-4 border-amber-500 flex justify-between items-center">
       <div class="flex items-center gap-2">
         <i class="fas fa-landmark text-2xl text-amber-400"></i>
         <div>
@@ -19,6 +41,9 @@
           <p class="text-indigo-200 text-xs">F-8 మ్యుటేషన్ అధికారిక నోటీస్ ట్రాకర్</p>
         </div>
       </div>
+      <button onclick="logout()" title="లాగౌట్" class="text-indigo-200 hover:text-white text-xs bg-indigo-900/50 p-2 rounded-lg">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
     </div>
 
     <!-- Entry Form -->
@@ -86,6 +111,35 @@
   </div>
 
   <script>
+    // Secret PIN: 1207
+    const SECRET_PIN = "1207";
+
+    function checkAccess() {
+      const entered = document.getElementById('accessPin').value;
+      if (entered === SECRET_PIN) {
+        localStorage.setItem('auth_token', 'AUTHORIZED_USER');
+        showApp();
+      } else {
+        document.getElementById('errorMsg').classList.remove('hidden');
+      }
+    }
+
+    function showApp() {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      changeDays();
+      render();
+    }
+
+    function logout() {
+      localStorage.removeItem('auth_token');
+      location.reload();
+    }
+
+    if (localStorage.getItem('auth_token') === 'AUTHORIZED_USER') {
+      showApp();
+    }
+
     function formatDate(d) {
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -136,18 +190,17 @@
       const msg = document.getElementById('customMsg').value;
 
       if (!name || !rawPhone || !doc || !dueDateVal) {
-        alert('దయచేసి పేరు, ఫోన్ నంబర్ మరియు డాక్యుమెంట్ వివరాలు నమోదు చేయండి!');
+        alert('Dayachesi vivaralu anni enter cheyandi!');
         return;
       }
 
       let cleanDigits = rawPhone.replace(/[^0-9]/g, '');
       if (cleanDigits.length > 10) cleanDigits = cleanDigits.slice(-10);
       if (cleanDigits.length !== 10) {
-        alert('దయచేసి సరైన 10 అంకెల మొబైల్ నంబర్ ఇవ్వండి!');
+        alert('Saraina 10 ankela mobile number ivvandi!');
         return;
       }
 
-      // రికార్డ్ సేవ్ చేయడం
       const today = new Date();
       const parts = dueDateVal.split('-');
       const formattedDue = `${parts[2]}/${parts[1]}/${parts[0]}`;
@@ -168,28 +221,25 @@
       list.unshift(record);
       saveEntries(list);
 
-      // ఫారమ్ రీసెట్
       document.getElementById('name').value = '';
       document.getElementById('phone').value = '';
       document.getElementById('docName').value = '';
       changeDays();
 
-      // వాట్సాప్ ఓపెన్ చేయడం
       window.location.href = `https://api.whatsapp.com/send?phone=91${cleanDigits}&text=${encodeURIComponent(msg)}`;
     }
 
     function markReturned(id) {
-      const list = getEntries().map(item => item.id === id ? { ...item, status: 'RETURNED' } : item);
-      saveEntries(list);
+      saveEntries(getEntries().map(item => item.id === id ? { ...item, status: 'RETURNED' } : item));
     }
 
     function sendReminder(phone, name, docName, dueDateStr) {
-      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n*అత్యవసర రిమైండర్:*\n${name} గారు, మీకు ఇచ్చిన *${docName}* విచారణ గడువు తేదీ (*${dueDateStr}*) ముగిసినది.\n\nమీరు నివేదిక సమర్పించడంలో ఆలస్యం (Delay) చేస్తున్నారు. దయచేసి ఎలాంటి జాప్యం లేకుండా వెంటనే విచారణ నివేదికను కార్యాలయానికి సమర్పించవలసిందిగా కోరడమైనది.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
+      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n*అత్యవసర రిమైండర్:*\n${name} గారు, మీకు ఇచ్చిన *${docName}* విచారణ గడువు తేదీ (*${dueDateStr}*) ముగిసినది.\n\nమీరు నివేదిక సమర్పించడంలో ఆలస్యం (Delay) చేస్తున్నారు. దయచేసి వెంటనే విచారణ నివేదికను సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
       window.location.href = `https://api.whatsapp.com/send?phone=91${phone}&text=${encodeURIComponent(text)}`;
     }
 
     function deleteRecord(id) {
-      if (confirm('ఈ రికార్డును తొలగించాలనుకుంటున్నారా?')) {
+      if (confirm('Ee record ni delete cheyalani anukuntunnara?')) {
         saveEntries(getEntries().filter(item => item.id !== id));
       }
     }
@@ -202,7 +252,7 @@
       document.getElementById('pendingCount').innerText = `${list.filter(item => item.status === 'PENDING').length} Pending`;
 
       if (list.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">ఇంకా ఎలాంటి రికార్డులు లేవు.</p>';
+        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Inka elanti records levu.</p>';
         return;
       }
 
@@ -261,14 +311,8 @@
             updateMsg();
           }
         } catch (ex) {}
-      } else {
-        alert("కాంటాక్ట్ సెలెక్టర్ సపోర్ట్ లేదు. నంబర్ టైప్ చేయండి.");
       }
     }
-
-    // మొదటిసారి లోడ్ కాగానే తేదీ & మెసేజ్ ఆటోమేటిక్‌గా సెట్ అవుతాయి
-    changeDays();
-    render();
   </script>
 </body>
 </html>
