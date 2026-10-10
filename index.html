@@ -22,6 +22,22 @@
       </div>
     </div>
 
+    <!-- Auto Overdue Reminder Bar -->
+    <div id="overdueAlertBox" class="hidden bg-red-50 border-2 border-red-400 p-3.5 rounded-2xl space-y-2">
+      <div class="flex items-center justify-between text-xs font-bold text-red-800">
+        <span class="flex items-center gap-1.5">
+          <i class="fas fa-bell text-red-600 animate-bounce"></i>
+          గడువు ముగిసినవి: <span id="overdueCountBadge">0</span>
+        </span>
+        <button type="button" onclick="sendNextOverdueReminder()" class="bg-red-600 active:bg-red-800 text-white px-3 py-1.5 rounded-xl font-bold shadow text-[11px] flex items-center gap-1">
+          <i class="fab fa-whatsapp"></i> ఆటో రిమైండర్ పంపు
+        </button>
+      </div>
+      <p class="text-[10px] text-red-700 leading-tight">
+        * గడువు తేదీ దాటిన రికార్డులకు సిస్టమ్ ఆటోమేటిక్‌గా రిమైండర్ మెసేజ్ పంపుతుంది.
+      </p>
+    </div>
+
     <!-- Entry Form -->
     <div class="bg-white p-5 rounded-2xl shadow border border-slate-200 space-y-3">
       <div class="flex justify-between items-center">
@@ -31,7 +47,7 @@
         </button>
       </div>
 
-      <!-- Category Dropdown -->
+      <!-- 1st STEP: Category Dropdown -->
       <div class="bg-amber-50/80 p-3 rounded-xl border-2 border-amber-300">
         <label class="block text-xs font-bold text-amber-900 mb-1 flex items-center gap-1.5">
           <i class="fas fa-list-check text-amber-600"></i> విభాగం ఎంచుకోండి (Category) <span class="text-red-500">*</span>
@@ -299,6 +315,13 @@
       var today = new Date();
       var sentDateFormatted = String(today.getDate()).padStart(2, '0') + '/' + String(today.getMonth() + 1).padStart(2, '0') + '/' + today.getFullYear();
 
+      // Convert DD/MM/YYYY to YYYY-MM-DD for precise overdue comparison
+      var rawDue = '';
+      var dParts = dueDateVal.split('/');
+      if (dParts.length === 3) {
+        rawDue = dParts[2] + '-' + dParts[1] + '-' + dParts[0];
+      }
+
       var record = {
         id: Date.now(),
         category: category,
@@ -310,6 +333,7 @@
         fileType: fileType,
         sentDate: sentDateFormatted,
         dueDate: dueDateVal,
+        dueDateRaw: rawDue,
         daysAllowed: daysVal,
         status: 'PENDING'
       };
@@ -360,10 +384,27 @@
 
     function sendReminder(phone, name, docName, dueDateStr, category) {
       var text = '*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n' +
-                 '*అత్యవసర రిమైండర్:*\n' + name + ' గారు, మీకు ఇచ్చిన *' + docName + '* (' + category + ') విచారణ గడువు తేదీ (*' + dueDateStr + '*) ముగిసినది.\n\n' +
+                 '*అత్యవసర రిమైండర్:*\n' + name + ' గారు, మీకు ఇచ్చిన *' + docName + '* (' + (category || 'ఫైల్') + ') విచారణ గడువు తేదీ (*' + dueDateStr + '*) ముగిసినది.\n\n' +
                  'మీరు నివేదిక సమర్పించడంలో ఆలస్యం (Delay) చేస్తున్నారు. దయచేసి వెంటనే విచారణ నివేదికను సమర్పించగలరు.\n\n' +
                  'ఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*';
       window.location.href = 'https://api.whatsapp.com/send?phone=91' + phone + '&text=' + encodeURIComponent(text);
+    }
+
+    // Auto Overdue Send Button: Picks the top overdue pending record directly
+    function sendNextOverdueReminder() {
+      var list = getEntries();
+      var today = new Date();
+      var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+      var overdueItem = list.find(function(r) {
+        return r.status === 'PENDING' && r.dueDateRaw && r.dueDateRaw < todayStr;
+      });
+
+      if (overdueItem) {
+        sendReminder(overdueItem.phone, overdueItem.name, overdueItem.docName, overdueItem.dueDate, overdueItem.category);
+      } else {
+        alert('ప్రస్తుతం గడువు ముగిసిన పెండింగ్ రికార్డులు ఏవీ లేవు!');
+      }
     }
 
     function deleteRecord(id) {
@@ -377,37 +418,19 @@
       var container = document.getElementById('recordList');
       if (!container) return;
 
+      var today = new Date();
+      var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
       var pendingCount = list.filter(function(item) { return item.status === 'PENDING'; }).length;
       document.getElementById('pendingCount').innerText = pendingCount + ' Pending';
 
-      if (list.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">ఇంకా ఎలాంటి రికార్డులు లేవు.</p>';
-        return;
-      }
+      // Check for overdue records
+      var overdueList = list.filter(function(item) {
+        return item.status === 'PENDING' && item.dueDateRaw && item.dueDateRaw < todayStr;
+      });
 
-      container.innerHTML = list.map(function(item) {
-        return '<div class="border rounded-xl p-3 bg-slate-50 space-y-2 text-xs">' +
-            '<div class="flex justify-between items-start">' +
-              '<div>' +
-                '<div class="flex items-center gap-1.5">' +
-                  '<p class="font-bold text-sm text-slate-800">' + item.name + '</p>' +
-                  '<span class="bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0.2 rounded font-bold">' + (item.category || 'Mutations') + '</span>' +
-                '</div>' +
-                '<p class="text-slate-500 font-mono text-[11px] mt-0.5">+91 ' + item.phone + '</p>' +
-                '<p class="text-indigo-700 font-semibold mt-0.5">' + item.docName + '</p>' +
-                (item.fileName ? ('<p class="text-slate-500 text-[10px] mt-0.5 flex items-center gap-1"><i class="fas ' + (item.fileType === 'IMAGE' ? 'fa-camera text-emerald-600' : 'fa-file-pdf text-red-500') + '"></i> ' + item.fileName + '</p>') : '') +
-              '</div>' +
-              '<div class="flex flex-col items-end gap-1">' +
-                (item.status === 'RETURNED' 
-                  ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold text-[10px]">✓ రిపోర్ట్ వచ్చింది</span>' 
-                  : '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold text-[10px]">పెండింగ్</span>') +
-                '<span class="text-[10px] text-slate-400 font-medium">గడువు: ' + item.daysAllowed + ' రోజులు</span>' +
-              '</div>' +
-            '</div>' +
-            '<div class="flex justify-between text-slate-500 border-t pt-2 text-[11px]">' +
-              '<span>పంపినది: <b>' + item.sentDate + '</b></span>' +
-              '<span>చివరి తేదీ: <b>' + item.dueDate + '</b></span>' +
-            '</div>' +
-            '<div class="flex flex-wrap gap-1.5 pt-1 border-t">' +
-              (item.fileData ? ('<button onclick="viewAttachment(' + item.id + ')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-2.5 py-1.5 rounded-lg text-center flex items-center gap-1"><i class="fas ' + (item.fileType === 'IMAGE' ? 'fa-image text-emerald-600' : 'fa-eye text-indigo-600') + '"></i> ' + (item.fileType === 'IMAGE' ? 'ఫోటో చూడు' : 'PDF చూడు') + '</button>') : '') +
-     
+      var alertBox = document.getElementById('overdueAlertBox');
+      var badge = document.getElementById('overdueCountBadge');
+      if (overdueList.length > 0) {
+        alertBox.classList.remove('hidden');
+        badge.innerText = overdueList.le
