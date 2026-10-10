@@ -87,27 +87,27 @@
         </div>
       </div>
 
-      <!-- Due Date Selection -->
-      <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-        <div>
-          <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు రోజులు</label>
-          <select id="daysSelect" onchange="handleDaySelect(this.value)" class="w-full border rounded-lg p-2 text-xs bg-white outline-none">
-            <option value="1">1 రోజు</option>
-            <option value="2">2 రోజులు</option>
-            <option value="7" selected>7 రోజులు</option>
-            <option value="15">15 రోజులు</option>
-            <option value="30">30 రోజులు</option>
-          </select>
+      <!-- Due Date Selection with Fast-Action Buttons -->
+      <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="text-[11px] font-bold text-slate-700">గడువు రోజులు & తేదీ:</label>
+          <span id="currentDaysBadge" class="text-[10px] bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full font-bold">7 రోజులు</span>
         </div>
-        <div>
-          <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు తేదీ (Due Date)</label>
-          <div class="flex items-center gap-1">
-            <input type="text" id="dueDateField" oninput="renderNotice()" class="w-full border rounded-lg p-1.5 text-xs bg-white font-bold outline-none focus:border-indigo-600 text-center">
-            <label class="cursor-pointer bg-indigo-100 hover:bg-indigo-200 text-indigo-700 p-2 rounded-lg border border-indigo-300 flex items-center justify-center">
-              <i class="fas fa-calendar-alt text-xs"></i>
-              <input type="date" id="calendarPicker" onchange="handleCalendarPick(this.value)" class="hidden">
-            </label>
-          </div>
+
+        <div class="grid grid-cols-5 gap-1">
+          <button type="button" onclick="setDue(1)" class="day-btn py-1.5 text-xs bg-white border border-slate-300 rounded-lg font-bold hover:bg-indigo-50">1 D</button>
+          <button type="button" onclick="setDue(2)" class="day-btn py-1.5 text-xs bg-white border border-slate-300 rounded-lg font-bold hover:bg-indigo-50">2 D</button>
+          <button type="button" onclick="setDue(7)" class="day-btn py-1.5 text-xs bg-indigo-600 text-white border border-indigo-600 rounded-lg font-bold">7 D</button>
+          <button type="button" onclick="setDue(15)" class="day-btn py-1.5 text-xs bg-white border border-slate-300 rounded-lg font-bold hover:bg-indigo-50">15 D</button>
+          <button type="button" onclick="setDue(30)" class="day-btn py-1.5 text-xs bg-white border border-slate-300 rounded-lg font-bold hover:bg-indigo-50">30 D</button>
+        </div>
+
+        <div class="flex items-center gap-1.5 pt-1">
+          <input type="text" id="dueDateField" oninput="renderNotice()" class="w-full border-2 border-indigo-300 rounded-lg p-2 text-xs bg-white font-bold outline-none text-center" placeholder="DD/MM/YYYY">
+          <label class="cursor-pointer bg-indigo-700 hover:bg-indigo-800 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow">
+            <i class="fas fa-calendar-alt"></i>
+            <input type="date" id="calendarPicker" onchange="pickCalendarDate(this.value)" class="hidden">
+          </label>
         </div>
       </div>
 
@@ -135,6 +135,7 @@
 
   <script>
     let pickedFile = null;
+    let selectedDaysCount = 7;
 
     function fileChosen(input) {
       if (input.files && input.files[0]) {
@@ -154,46 +155,63 @@
       document.getElementById('fileBadge').classList.add('hidden');
     }
 
-    // రోజులు మార్చినప్పుడు తేదీ కాలిక్యులేషన్
-    function handleDaySelect(days) {
-      const numDays = parseInt(days, 10) || 7;
-      const target = new Date();
-      target.setDate(target.getDate() + numDays);
+    // డైరెక్ట్ బటన్ క్లిక్ తో రోజులు మరియు తేదీ సెట్ చేయడం
+    function setDue(days) {
+      selectedDaysCount = Number(days);
 
-      const dd = String(target.getDate()).padStart(2, '0');
-      const mm = String(target.getMonth() + 1).padStart(2, '0');
-      const yyyy = target.getFullYear();
+      // బటన్ కలర్స్ మార్పు
+      document.querySelectorAll('.day-btn').forEach(btn => {
+        btn.className = "day-btn py-1.5 text-xs bg-white border border-slate-300 rounded-lg font-bold hover:bg-indigo-50";
+        if (btn.innerText.trim() === `${days} D`) {
+          btn.className = "day-btn py-1.5 text-xs bg-indigo-600 text-white border border-indigo-600 rounded-lg font-bold";
+        }
+      });
 
-      document.getElementById('dueDateField').value = dd + '/' + mm + '/' + yyyy;
+      document.getElementById('currentDaysBadge').innerText = `${days} రోజులు`;
+
+      const d = new Date();
+      d.setDate(d.getDate() + selectedDaysCount);
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+
+      document.getElementById('dueDateField').value = `${dd}/${mm}/${yyyy}`;
       renderNotice();
     }
 
-    // క్యాలెండర్ నుండి ఎంచుకున్నప్పుడు
-    function handleCalendarPick(val) {
+    function pickCalendarDate(val) {
       if (val) {
         const parts = val.split('-');
         if (parts.length === 3) {
-          document.getElementById('dueDateField').value = parts[2] + '/' + parts[1] + '/' + parts[0];
+          document.getElementById('dueDateField').value = `${parts[2]}/${parts[1]}/${parts[0]}`;
+          
+          const sel = new Date(parts[0], parts[1] - 1, parts[2]);
+          const now = new Date();
+          now.setHours(0,0,0,0);
+          sel.setHours(0,0,0,0);
+          const diff = Math.round((sel - now) / (1000 * 60 * 60 * 24));
+          if (diff > 0) {
+            selectedDaysCount = diff;
+            document.getElementById('currentDaysBadge').innerText = `${diff} రోజులు`;
+          }
           renderNotice();
         }
       }
     }
 
-    // నోటీస్ మెసేజ్ ప్రివ్యూ అప్‌డేట్
     function renderNotice() {
       const category = document.getElementById('categorySelect').value;
       const name = document.getElementById('name').value.trim() || '[గ్రహీత పేరు]';
       const doc = document.getElementById('docName').value.trim() || '[రిఫరెన్స్ వివరాలు]';
       const dateVal = document.getElementById('dueDateField').value.trim();
-      const days = document.getElementById('daysSelect').value || '7';
 
-      const catText = category ? ' (' + category + ')' : '';
+      const catText = category ? ` (${category})` : '';
 
-      const text = '*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n' +
-                   'నమస్కారం ' + name + ' గారు,\n\n' +
-                   'మీకు *' + doc + '* సంబంధించిన' + catText + ' ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\n' +
-                   'దయచేసి దీనిని విచారించి *' + days + ' రోజుల్లోగా* ' + (dateVal ? '(చివరి తేదీ: *' + dateVal + '*) ' : '') + 'మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\n' +
-                   'ఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*';
+      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n` +
+                   `నమస్కారం ${name} గారు,\n\n` +
+                   `మీకు *${doc}* సంబంధించిన${catText} ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\n` +
+                   `దయచేసి దీనిని విచారించి *${selectedDaysCount} రోజుల్లోగా* ${dateVal ? `(చివరి తేదీ: *${dateVal}*) ` : ''}మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\n` +
+                   `ఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
 
       document.getElementById('customMsg').value = text;
     }
@@ -229,7 +247,7 @@
       const msg = document.getElementById('customMsg').value;
 
       if (!category) {
-        alert('దయచేసి ముందుగా విభాగం (Category) ను ఎంచుకోండి!');
+        alert('దయచేసి విభాగం (Category) ఎంచుకోండి!');
         document.getElementById('categorySelect').focus();
         return;
       }
@@ -258,7 +276,7 @@
       }
 
       const today = new Date();
-      const sentDateFormatted = String(today.getDate()).padStart(2, '0') + '/' + String(today.getMonth() + 1).padStart(2, '0') + '/' + today.getFullYear();
+      const sentDateFormatted = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
 
       const record = {
         id: Date.now(),
@@ -271,7 +289,7 @@
         fileType: fileType,
         sentDate: sentDateFormatted,
         dueDate: dueDateVal,
-        daysAllowed: document.getElementById('daysSelect').value || '7',
+        daysAllowed: selectedDaysCount,
         status: 'PENDING'
       };
 
@@ -284,21 +302,20 @@
       document.getElementById('docName').value = '';
       document.getElementById('categorySelect').value = '';
       removeFile();
-      document.getElementById('daysSelect').value = '7';
-      handleDaySelect(7);
+      setDue(7);
 
       if (pickedFile && navigator.canShare && navigator.canShare({ files: [pickedFile] })) {
         try {
           await navigator.share({
             files: [pickedFile],
-            title: category + ': ' + doc,
+            title: `${category}: ${doc}`,
             text: msg
           });
           return;
         } catch (e) {}
       }
 
-      window.location.href = 'https://api.whatsapp.com/send?phone=91' + cleanDigits + '&text=' + encodeURIComponent(msg);
+      window.location.href = `https://api.whatsapp.com/send?phone=91${cleanDigits}&text=${encodeURIComponent(msg)}`;
     }
 
     function viewAttachment(id) {
@@ -306,9 +323,9 @@
       if (item && item.fileData) {
         const newWindow = window.open();
         if (item.fileType === 'IMAGE') {
-          newWindow.document.write('<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;"><img src="' + item.fileData + '" style="max-width:100%;max-height:100vh;object-fit:contain;"></body>');
+          newWindow.document.write(`<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;"><img src="${item.fileData}" style="max-width:100%;max-height:100vh;object-fit:contain;"></body>`);
         } else {
-          newWindow.document.write('<iframe src="' + item.fileData + '" frameborder="0" style="border:0;width:100%;height:100%;" allowfullscreen></iframe>');
+          newWindow.document.write(`<iframe src="${item.fileData}" frameborder="0" style="border:0;width:100%;height:100%;" allowfullscreen></iframe>`);
         }
       }
     }
@@ -318,11 +335,11 @@
     }
 
     function sendReminder(phone, name, docName, dueDateStr, category) {
-      const text = '*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n' +
-                   '*అత్యవసర రిమైండర్:*\n' + name + ' గారు, మీకు ఇచ్చిన *' + docName + '* (' + category + ') విచారణ గడువు తేదీ (*' + dueDateStr + '*) ముగిసినది.\n\n' +
-                   'మీరు నివేదిక సమర్పించడంలో ఆలస్యం (Delay) చేస్తున్నారు. దయచేసి వెంటనే విచారణ నివేదికను సమర్పించగలరు.\n\n' +
-                   'ఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*';
-      window.location.href = 'https://api.whatsapp.com/send?phone=91' + phone + '&text=' + encodeURIComponent(text);
+      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n` +
+                   `*అత్యవసర రిమైండర్:*\n${name} గారు, మీకు ఇచ్చిన *${docName}* (${category}) విచారణ గడువు తేదీ (*${dueDateStr}*) ముగిసినది.\n\n` +
+                   `మీరు నివేదిక సమర్పించడంలో ఆలస్యం (Delay) చేస్తున్నారు. దయచేసి వెంటనే విచారణ నివేదికను సమర్పించగలరు.\n\n` +
+                   `ఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
+      window.location.href = `https://api.whatsapp.com/send?phone=91${phone}&text=${encodeURIComponent(text)}`;
     }
 
     function deleteRecord(id) {
@@ -337,7 +354,7 @@
       if (!container) return;
 
       const pendingCount = list.filter(item => item.status === 'PENDING').length;
-      document.getElementById('pendingCount').innerText = pendingCount + ' Pending';
+      document.getElementById('pendingCount').innerText = `${pendingCount} Pending`;
 
       if (list.length === 0) {
         container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">ఇంకా ఎలాంటి రికార్డులు లేవు.</p>';
@@ -388,36 +405,4 @@
                 <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
                   ✓ రిటర్న్
                 </button>
-              ` : '<span class="flex-1 text-slate-400 py-1.5 text-center font-bold">పూర్తయింది</span>'}
-
-              <button onclick="deleteRecord(${item.id})" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg hover:text-red-600">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function pickContact() {
-      if ('contacts' in navigator && 'ContactsManager' in window) {
-        try {
-          const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
-          if (contacts.length > 0) {
-            if (contacts[0].name?.[0]) document.getElementById('name').value = contacts[0].name[0];
-            if (contacts[0].tel?.[0]) {
-              let clean = contacts[0].tel[0].replace(/[^0-9]/g, '');
-              if (clean.length > 10) clean = clean.slice(-10);
-              document.getElementById('phone').value = clean;
-            }
-            renderNotice();
-          }
-        } catch (ex) {}
-      }
-    }
-
-    // మొదటిసారి డీఫాల్ట్‌గా 7 రోజులు సెట్ చేయడం
-    handleDaySelect(7);
-    renderDashboard();
-  </script>
-</body
+              ` : '<span class="flex-1 text-slate
