@@ -6,9 +6,14 @@
   <title>Tahsildar Office, Peddavaduguru</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Default hidden until PIN is verified */
+    #mainApp { display: none; }
+  </style>
 </head>
 <body class="bg-slate-100 min-h-screen p-3 text-slate-800">
 
+  <!-- Main App Container -->
   <div id="mainApp" class="max-w-md mx-auto space-y-4">
     
     <!-- Header -->
@@ -20,6 +25,9 @@
           <p class="text-indigo-200 text-xs">అధికారిక రికార్డుల & నోటీస్ ట్రాకర్</p>
         </div>
       </div>
+      <button onclick="lockApp()" class="text-xs bg-indigo-950/60 hover:bg-indigo-950 text-indigo-200 px-2.5 py-1.5 rounded-lg border border-indigo-400/30 flex items-center gap-1">
+        <i class="fas fa-lock"></i> లాక్
+      </button>
     </div>
 
     <!-- Entry Form -->
@@ -145,7 +153,30 @@
   </div>
 
   <script>
+    var CORRECT_PIN = "1207";
     var pickedFile = null;
+
+    // Simple Browser Dialog Authentication
+    function authenticate() {
+      if (sessionStorage.getItem('f8_auth') === 'true') {
+        document.getElementById('mainApp').style.display = 'block';
+        return;
+      }
+
+      var entered = prompt("సెక్యూరిటీ లాక్: దయచేసి PIN నమోదు చేయండి (1207):");
+      if (entered === CORRECT_PIN) {
+        sessionStorage.setItem('f8_auth', 'true');
+        document.getElementById('mainApp').style.display = 'block';
+      } else {
+        alert("తప్పు PIN! యాక్సెస్ నిరాకరించబడింది.");
+        location.reload();
+      }
+    }
+
+    function lockApp() {
+      sessionStorage.removeItem('f8_auth');
+      location.reload();
+    }
 
     async function pickContact() {
       if (navigator.contacts && navigator.contacts.select) {
@@ -390,6 +421,4 @@
               '<span>చివరి తేదీ: <b>' + item.dueDate + '</b></span>' +
             '</div>' +
             '<div class="flex flex-wrap gap-1.5 pt-1 border-t">' +
-              (item.fileData ? ('<button onclick="viewAttachment(' + item.id + ')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-2.5 py-1.5 rounded-lg text-center flex items-center gap-1"><i class="fas ' + (item.fileType === 'IMAGE' ? 'fa-image text-emerald-600' : 'fa-eye text-indigo-600') + '"></i> ' + (item.fileType === 'IMAGE' ? 'ఫోటో చూడు' : 'PDF చూడు') + '</button>') : '') +
-              (item.status === 'PENDING' ? ('<button onclick="sendReminder(\'' + item.phone + '\', \'' + item.name + '\', \'' + item.docName + '\', \'' + item.dueDate + '\', \'' + (item.category || 'Mutations') + '\')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">🔔 రిమైండ్</button><button onclick="markReturned(' + item.id + ')" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">✓ రిటర్న్</button>') : '<span class="flex-1 text-slate-400 py-1.5 text-center font-bold">పూర్తయింది</span>') +
-              '<button onclick="deleteRecord(' + item.id + ')" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg hover:text-red-600"><i class="fas fa-trash"></i></
+              (item.fileData ? ('<button onclick="viewAttachment(' + item.id + ')" class="bg-indigo-50 hover:
