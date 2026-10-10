@@ -9,16 +9,14 @@
 <body class="bg-slate-100 min-h-screen p-3 text-slate-800">
   <div class="max-w-md mx-auto space-y-4">
     <!-- Header -->
-    <div class="bg-indigo-700 text-white p-5 rounded-2xl shadow flex justify-between items-center">
-      <div>
-        <h1 class="text-xl font-bold">📄 F-8 రిమైండర్ ట్రాకర్</h1>
-        <p class="text-indigo-200 text-xs">15 రోజుల గడువు ట్రాకింగ్</p>
-      </div>
+    <div class="bg-indigo-700 text-white p-5 rounded-2xl shadow">
+      <h1 class="text-xl font-bold">📄 F-8 రిమైండర్ ట్రాకర్</h1>
+      <p class="text-indigo-200 text-xs">PDF & 15 రోజుల గడువు ట్రాకింగ్</p>
     </div>
 
     <!-- Form -->
     <div class="bg-white p-5 rounded-2xl shadow border border-slate-200 space-y-3">
-      <h2 class="text-base font-bold text-slate-700">కొత్త ఎంట్రీ & వాట్సాప్ షేర్</h2>
+      <h2 class="text-base font-bold text-slate-700">కొత్త ఎంట్రీ & షేర్</h2>
       
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">గ్రహీత పేరు</label>
@@ -27,7 +25,7 @@
 
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">WhatsApp నంబర్ (10 అంకెలు)</label>
-        <input type="number" id="phone" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="9876543210">
+        <input type="tel" id="phone" maxlength="10" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="9876543210">
       </div>
 
       <div>
@@ -35,8 +33,13 @@
         <input type="text" id="docName" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 Mutation Report">
       </div>
 
+      <div>
+        <label class="block text-xs font-semibold mb-1 text-slate-600">PDF ఫైల్ ఎంచుకోండి (తప్పనిసరి)</label>
+        <input type="file" id="pdfFile" accept=".pdf" class="w-full border rounded-xl p-2 text-xs text-slate-500">
+      </div>
+
       <button type="button" onclick="handleSend()" class="w-full bg-emerald-600 active:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow">
-        📲 వాట్సాప్‌లో పంపు & సేవ్ చేయి
+        📲 PDF & మెసేజ్ షేర్ చేయి (WhatsApp)
       </button>
     </div>
 
@@ -59,26 +62,20 @@
       render();
     }
 
-    function handleSend() {
+    async function handleSend() {
       const name = document.getElementById('name').value.trim();
       let phone = document.getElementById('phone').value.trim();
       const docName = document.getElementById('docName').value.trim();
+      const fileInput = document.getElementById('pdfFile');
+      const file = fileInput.files[0];
 
       if (!name || !phone || !docName) {
         alert('దయచేసి పేరు, ఫోన్ నంబర్ మరియు డాక్యుమెంట్ పేరు నమోదు చేయండి!');
         return;
       }
 
-      if (phone.length < 10) {
-        alert('సరైన 10 అంకెల మొబైల్ నంబర్ ఇవ్వండి!');
-        return;
-      }
-
-      // ఫోన్ నంబర్ నుండి అనవసరమైన గుర్తులు తీసేయడం
       phone = phone.replace(/[^0-9]/g, '');
-      if (phone.length === 10) {
-        phone = '91' + phone;
-      }
+      if (phone.length === 10) phone = '91' + phone;
 
       const sentDate = new Date();
       const dueDate = new Date();
@@ -99,17 +96,29 @@
       list.unshift(record);
       saveEntries(list);
 
-      // ఫీల్డ్స్ క్లియర్ చేయడం
-      document.getElementById('name').value = '';
-      document.getElementById('phone').value = '';
-      document.getElementById('docName').value = '';
+      const messageText = `నమస్కారం ${name} గారు, మీకు ${docName} పంపడం జరిగినది. దయచేసి విచారించి 15 రోజుల్లోగా రిపోర్ట్ ఇవ్వగలరు.`;
 
-      // వాట్సాప్ లింక్ ఓపెన్ చేయడం
-      const text = `నమస్కారం ${name} గారు, మీకు ${docName} పంపడం జరిగినది. దయచేసి విచారించి 15 రోజుల్లోగా రిపోర్ట్ ఇవ్వగలరు.`;
-      const url = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(text)}`;
-      
-      // WhatsApp యాప్‌ని నేరుగా ఓపెన్ చేస్తుంది
-      window.location.href = url;
+      // 1. మొబైల్ నేటివ్ షేరింగ్ (PDF + Text రెండూ వెళ్తాయి)
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: docName,
+            text: messageText
+          });
+          document.getElementById('name').value = '';
+          document.getElementById('phone').value = '';
+          document.getElementById('docName').value = '';
+          fileInput.value = '';
+          return;
+        } catch (err) {
+          console.log('Share canceled');
+        }
+      }
+
+      // 2. ఒకవేళ బ్రౌజర్ ఫైల్ షేర్ సపోర్ట్ చేయకపోతే వాట్సాప్ చాట్ ఓపెన్ అవుతుంది
+      alert('ఫైల్ షేర్ విండో ఓపెన్ అవుతోంది. వాట్సాప్ ఎంచుకుని పంపండి.');
+      window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(messageText)}`;
     }
 
     function markReturned(id) {
