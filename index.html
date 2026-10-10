@@ -9,47 +9,6 @@
 </head>
 <body class="bg-slate-100 min-h-screen p-3 text-slate-800">
 
-  <!-- PIN LOCK SCREEN WITH ON-SCREEN KEYPAD -->
-  <div id="pinScreen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl text-center space-y-4 border border-slate-200">
-      <div class="w-12 h-12 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center mx-auto text-xl shadow-inner">
-        <i class="fas fa-lock"></i>
-      </div>
-      <div>
-        <h2 class="text-base font-bold text-slate-800">సెక్యూరిటీ లాక్</h2>
-        <p class="text-xs text-slate-500 mt-0.5">PIN నమోదు చేయండి (1207)</p>
-      </div>
-
-      <!-- PIN Display Dots -->
-      <div class="flex justify-center gap-3 py-1">
-        <div id="dot1" class="w-3.5 h-3.5 rounded-full border-2 border-indigo-400 bg-transparent"></div>
-        <div id="dot2" class="w-3.5 h-3.5 rounded-full border-2 border-indigo-400 bg-transparent"></div>
-        <div id="dot3" class="w-3.5 h-3.5 rounded-full border-2 border-indigo-400 bg-transparent"></div>
-        <div id="dot4" class="w-3.5 h-3.5 rounded-full border-2 border-indigo-400 bg-transparent"></div>
-      </div>
-      <p id="pinError" class="text-xs text-red-600 font-bold hidden">తప్పు PIN! మళ్ళీ ప్రయత్నించండి.</p>
-
-      <!-- Number Keypad Grid -->
-      <div class="grid grid-cols-3 gap-2.5 pt-1">
-        <button type="button" onclick="pressDigit('1')" class="bg-slate-100 active:bg-indigo-100 text-slate-800 font-bold text-lg py-3 rounded-xl shadow-sm">1</button>
-        <button type="button" onclick="pressDigit('2')" class="bg-slate-100 active:bg-indigo-100 text-slate-800 font-bold text-lg py-3 rounded-xl shadow-sm">2</button>
-        <button type="button" onclick="pressDigit('3')" class="bg-slate-100 active:bg-indigo-100 text-slate-800 font-bold text-lg py-3 rounded-xl shadow-sm">3</button>
-        
-        <button type="button" onclick="pressDigit('4')" class="bg-slate-100 active:bg-indigo-100 text-slate-800 font-bold text-lg py-3 rounded-xl shadow-sm">4</button>
-        <button type="button" onclick="pressDigit('5')" class="bg-slate-100 active:bg-indigo-100 text-slate-800 font-bold text-lg py-3 rounded-xl shadow-sm">5</button>
-        <button type="button" onclick="pressDigit('6')" class="bg-slate-100 active:bg-indigo-100 text-slate-800 font-bold text-lg py-3 rounded-xl shadow-sm">6</button>
-        
-        <button type="button" onclick="pressDigit('7')" class="bg-slate-100 active:bg-indigo-100 text-slate-800 font-bold text-lg py-3 rounded-xl shadow-sm">7</button>
-        <button type="button" onclick="pressDigit('8')" class="bg-slate-100 active:bg-indigo-100 text-slate-800 font-bold text-lg py-3 rounded-xl shadow-sm">8</button>
-        <button type="button" onclick="pressDigit('9')" class="bg-slate-100 active:bg-indigo-100 text-slate-800 font-bold text-lg py-3 rounded-xl shadow-sm">9</button>
-        
-        <button type="button" onclick="clearPin()" class="bg-red-50 active:bg-red-100 text-red-600 font-bold text-xs py-3 rounded-xl">Clear</button>
-        <button type="button" onclick="pressDigit('0')" class="bg-slate-100 active:bg-indigo-100 text-slate-800 font-bold text-lg py-3 rounded-xl shadow-sm">0</button>
-        <button type="button" onclick="backspacePin()" class="bg-slate-100 active:bg-slate-200 text-slate-700 font-bold text-sm py-3 rounded-xl"><i class="fas fa-backspace"></i></button>
-      </div>
-    </div>
-  </div>
-
   <div id="mainApp" class="max-w-md mx-auto space-y-4">
     
     <!-- Header -->
@@ -61,9 +20,6 @@
           <p class="text-indigo-200 text-xs">అధికారిక రికార్డుల & నోటీస్ ట్రాకర్</p>
         </div>
       </div>
-      <button onclick="lockApp()" class="text-xs bg-indigo-950/60 hover:bg-indigo-950 text-indigo-200 px-2.5 py-1.5 rounded-lg border border-indigo-400/30 flex items-center gap-1">
-        <i class="fas fa-lock"></i> లాక్
-      </button>
     </div>
 
     <!-- Entry Form -->
@@ -189,71 +145,7 @@
   </div>
 
   <script>
-    var currentPin = "";
-    var CORRECT_PIN = "1207";
     var pickedFile = null;
-
-    function updateDots() {
-      for (var i = 1; i <= 4; i++) {
-        var dot = document.getElementById('dot' + i);
-        if (i <= currentPin.length) {
-          dot.className = "w-3.5 h-3.5 rounded-full border-2 border-indigo-600 bg-indigo-600 transition-all";
-        } else {
-          dot.className = "w-3.5 h-3.5 rounded-full border-2 border-indigo-400 bg-transparent transition-all";
-        }
-      }
-    }
-
-    function pressDigit(num) {
-      document.getElementById('pinError').classList.add('hidden');
-      if (currentPin.length < 4) {
-        currentPin += num;
-        updateDots();
-      }
-      if (currentPin.length === 4) {
-        setTimeout(verifyKeypadPin, 100);
-      }
-    }
-
-    function backspacePin() {
-      if (currentPin.length > 0) {
-        currentPin = currentPin.slice(0, -1);
-        updateDots();
-      }
-    }
-
-    function clearPin() {
-      currentPin = "";
-      updateDots();
-      document.getElementById('pinError').classList.add('hidden');
-    }
-
-    function verifyKeypadPin() {
-      if (currentPin === CORRECT_PIN) {
-        sessionStorage.setItem('f8_auth', 'true');
-        document.getElementById('pinScreen').classList.add('hidden');
-        currentPin = "";
-        updateDots();
-      } else {
-        document.getElementById('pinError').classList.remove('hidden');
-        currentPin = "";
-        updateDots();
-      }
-    }
-
-    function checkAuth() {
-      if (sessionStorage.getItem('f8_auth') === 'true') {
-        document.getElementById('pinScreen').classList.add('hidden');
-      } else {
-        document.getElementById('pinScreen').classList.remove('hidden');
-      }
-    }
-
-    function lockApp() {
-      sessionStorage.removeItem('f8_auth');
-      clearPin();
-      document.getElementById('pinScreen').classList.remove('hidden');
-    }
 
     async function pickContact() {
       if (navigator.contacts && navigator.contacts.select) {
@@ -419,4 +311,85 @@
       document.getElementById('daysSelect').value = '3';
       updateDateByDays();
 
-      if (pickedFile && navigator.canShare && navigator.canShare({ f
+      if (pickedFile && navigator.canShare && navigator.canShare({ files: [pickedFile] })) {
+        try {
+          await navigator.share({ files: [pickedFile], title: category + ': ' + doc, text: msg });
+          return;
+        } catch (e) {}
+      }
+
+      window.location.href = 'https://api.whatsapp.com/send?phone=91' + cleanDigits + '&text=' + encodeURIComponent(msg);
+    }
+
+    function viewAttachment(id) {
+      var item = getEntries().find(function(r) { return r.id === id; });
+      if (item && item.fileData) {
+        var w = window.open();
+        if (item.fileType === 'IMAGE') {
+          w.document.write('<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;"><img src="' + item.fileData + '" style="max-width:100%;max-height:100vh;"></body>');
+        } else {
+          w.document.write('<iframe src="' + item.fileData + '" frameborder="0" style="border:0;width:100%;height:100%;"></iframe>');
+        }
+      }
+    }
+
+    function markReturned(id) {
+      saveEntries(getEntries().map(function(item) {
+        return item.id === id ? Object.assign({}, item, { status: 'RETURNED' }) : item;
+      }));
+    }
+
+    function sendReminder(phone, name, docName, dueDateStr, category) {
+      var text = '*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n' +
+                 '*అత్యవసర రిమైండర్:*\n' + name + ' గారు, మీకు ఇచ్చిన *' + docName + '* (' + (category || 'ఫైల్') + ') విచారణ గడువు తేదీ (*' + dueDateStr + '*) ముగిసినది.\n\n' +
+                 'దయచేసి వెంటనే విచారణ నివేదికను కార్యాలయానికి సమర్పించగలరు.\n\n' +
+                 'ఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*';
+      window.location.href = 'https://api.whatsapp.com/send?phone=91' + phone + '&text=' + encodeURIComponent(text);
+    }
+
+    function deleteRecord(id) {
+      if (confirm('ఈ రికార్డును తొలగించాలనుకుంటున్నారా?')) {
+        saveEntries(getEntries().filter(function(item) { return item.id !== id; }));
+      }
+    }
+
+    function renderDashboard() {
+      var list = getEntries();
+      var container = document.getElementById('recordList');
+      if (!container) return;
+
+      var pendingCount = list.filter(function(item) { return item.status === 'PENDING'; }).length;
+      document.getElementById('pendingCount').innerText = pendingCount + ' Pending';
+
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">ఇంకా ఎలాంటి రికార్డులు లేవు.</p>';
+        return;
+      }
+
+      container.innerHTML = list.map(function(item) {
+        return '<div class="border rounded-xl p-3 bg-slate-50 space-y-2 text-xs">' +
+            '<div class="flex justify-between items-start">' +
+              '<div>' +
+                '<div class="flex items-center gap-1.5">' +
+                  '<p class="font-bold text-sm text-slate-800">' + item.name + '</p>' +
+                  '<span class="bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0.2 rounded font-bold">' + (item.category || 'Mutations') + '</span>' +
+                '</div>' +
+                '<p class="text-slate-500 font-mono text-[11px] mt-0.5">+91 ' + item.phone + '</p>' +
+                '<p class="text-indigo-700 font-semibold mt-0.5">' + item.docName + '</p>' +
+                (item.fileName ? ('<p class="text-slate-500 text-[10px] mt-0.5 flex items-center gap-1"><i class="fas ' + (item.fileType === 'IMAGE' ? 'fa-camera text-emerald-600' : 'fa-file-pdf text-red-500') + '"></i> ' + item.fileName + '</p>') : '') +
+              '</div>' +
+              '<div class="flex flex-col items-end gap-1">' +
+                (item.status === 'RETURNED' 
+                  ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold text-[10px]">✓ రిపోర్ట్ వచ్చింది</span>' 
+                  : '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold text-[10px]">పెండింగ్</span>') +
+                '<span class="text-[10px] text-slate-400 font-medium">గడువు: ' + item.daysAllowed + ' రోజులు</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="flex justify-between text-slate-500 border-t pt-2 text-[11px]">' +
+              '<span>పంపినది: <b>' + item.sentDate + '</b></span>' +
+              '<span>చివరి తేదీ: <b>' + item.dueDate + '</b></span>' +
+            '</div>' +
+            '<div class="flex flex-wrap gap-1.5 pt-1 border-t">' +
+              (item.fileData ? ('<button onclick="viewAttachment(' + item.id + ')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-2.5 py-1.5 rounded-lg text-center flex items-center gap-1"><i class="fas ' + (item.fileType === 'IMAGE' ? 'fa-image text-emerald-600' : 'fa-eye text-indigo-600') + '"></i> ' + (item.fileType === 'IMAGE' ? 'ఫోటో చూడు' : 'PDF చూడు') + '</button>') : '') +
+              (item.status === 'PENDING' ? ('<button onclick="sendReminder(\'' + item.phone + '\', \'' + item.name + '\', \'' + item.docName + '\', \'' + item.dueDate + '\', \'' + (item.category || 'Mutations') + '\')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">🔔 రిమైండ్</button><button onclick="markReturned(' + item.id + ')" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">✓ రిటర్న్</button>') : '<span class="flex-1 text-slate-400 py-1.5 text-center font-bold">పూర్తయింది</span>') +
+              '<button onclick="deleteRecord(' + item.id + ')" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg hover:text-red-600"><i class="fas fa-trash"></i></
