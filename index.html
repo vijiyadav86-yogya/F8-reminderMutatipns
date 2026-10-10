@@ -31,7 +31,7 @@
         </button>
       </div>
 
-      <!-- 1st STEP: Category Dropdown (Select Option) -->
+      <!-- Category Dropdown -->
       <div class="bg-amber-50/80 p-3 rounded-xl border-2 border-amber-300">
         <label class="block text-xs font-bold text-amber-900 mb-1 flex items-center gap-1.5">
           <i class="fas fa-list-check text-amber-600"></i> విభాగం ఎంచుకోండి (Category) <span class="text-red-500">*</span>
@@ -64,13 +64,37 @@
         <input type="text" id="docName" oninput="updateMsg()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 నంబర్ / అర్జీ వివరాలు">
       </div>
 
-      <!-- PDF File Upload Box -->
-      <div class="bg-indigo-50/80 p-3 rounded-xl border-2 border-indigo-200 space-y-1">
-        <label class="block text-xs font-bold text-indigo-900 flex items-center gap-1.5">
-          <i class="fas fa-file-pdf text-red-500 text-base"></i> PDF డాక్యుమెంట్ ఎంచుకోండి
+      <!-- PDF / CAMERA / PHOTO UPLOAD BOX -->
+      <div class="bg-indigo-50/80 p-3 rounded-xl border-2 border-indigo-200 space-y-2">
+        <label class="block text-xs font-bold text-indigo-900 flex items-center justify-between">
+          <span class="flex items-center gap-1.5">
+            <i class="fas fa-file-pdf text-red-500"></i> / <i class="fas fa-camera text-indigo-600"></i> ఫైల్ లేదా ఫోటో జతచేయండి
+          </span>
+          <span class="text-[10px] text-indigo-600 font-normal">PDF లేదా Photo</span>
         </label>
-        <input type="file" id="pdfFileInput" accept="application/pdf" class="w-full border rounded-xl p-2 text-xs text-slate-600 bg-white file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-700 file:text-white file:text-xs file:font-semibold">
-        <p class="text-[10px] text-slate-500">* PDF ఫైల్ సేవ్ అయి, కింద రికార్డులో "PDF చూడు" బటన్ ద్వారా ఓపెన్ చేసుకోవచ్చు.</p>
+        
+        <div class="grid grid-cols-2 gap-2">
+          <!-- Option A: File / PDF / Gallery -->
+          <label class="cursor-pointer bg-white border border-indigo-300 hover:bg-indigo-50 p-2.5 rounded-xl text-center flex flex-col items-center justify-center gap-1 shadow-sm">
+            <i class="fas fa-paperclip text-indigo-600 text-lg"></i>
+            <span class="text-[11px] font-bold text-slate-700">PDF / ఫైల్ ఎంచుకోండి</span>
+            <input type="file" id="fileInput" accept="application/pdf,image/*" onchange="handleFileSelected(this)" class="hidden">
+          </label>
+
+          <!-- Option B: Direct Camera Snap -->
+          <label class="cursor-pointer bg-white border border-emerald-300 hover:bg-emerald-50 p-2.5 rounded-xl text-center flex flex-col items-center justify-center gap-1 shadow-sm">
+            <i class="fas fa-camera text-emerald-600 text-lg"></i>
+            <span class="text-[11px] font-bold text-slate-700">కెమెరాతో ఫోటో తీయి</span>
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleFileSelected(this)" class="hidden">
+          </label>
+        </div>
+
+        <div id="fileSelectedBadge" class="hidden bg-emerald-100 text-emerald-800 text-[11px] p-2 rounded-lg font-bold flex items-center justify-between">
+          <span id="fileSelectedName" class="truncate max-w-[240px]"></span>
+          <button type="button" onclick="clearSelectedFile()" class="text-red-500 hover:text-red-700 ml-2">
+            <i class="fas fa-times-circle"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Manual Due Date Selection -->
@@ -87,7 +111,7 @@
           <button type="button" onclick="setQuickDays(15)" class="flex-1 bg-white border border-slate-300 text-slate-700 py-1 text-xs rounded-lg font-semibold hover:bg-slate-100">15 Days</button>
           <button type="button" onclick="setQuickDays(30)" class="flex-1 bg-white border border-slate-300 text-slate-700 py-1 text-xs rounded-lg font-semibold hover:bg-slate-100">30 Days</button>
         </div>
-        <p id="dateHint" class="text-[10px] text-indigo-700 font-medium">* Date meeda tap chesi direct ga calendar lo thedi select cheyandi.</p>
+        <p id="dateHint" class="text-[10px] text-indigo-700 font-medium">* Date బాక్స్‌పై క్లిక్ చేసి నేరుగా తేదీ మార్చుకోవచ్చు.</p>
       </div>
 
       <!-- Message Preview Box -->
@@ -113,6 +137,26 @@
   </div>
 
   <script>
+    let activeFile = null;
+
+    function handleFileSelected(input) {
+      if (input.files && input.files[0]) {
+        activeFile = input.files[0];
+        document.getElementById('fileSelectedBadge').classList.remove('hidden');
+        const isImg = activeFile.type.startsWith('image/');
+        document.getElementById('fileSelectedName').innerHTML = isImg 
+          ? `<i class="fas fa-camera text-emerald-600"></i> ఫోటో జతచేయబడింది: ${activeFile.name}` 
+          : `<i class="fas fa-file-pdf text-red-600"></i> PDF జతచేయబడింది: ${activeFile.name}`;
+      }
+    }
+
+    function clearSelectedFile() {
+      activeFile = null;
+      document.getElementById('fileInput').value = '';
+      document.getElementById('cameraInput').value = '';
+      document.getElementById('fileSelectedBadge').classList.add('hidden');
+    }
+
     function formatDate(d) {
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -146,8 +190,8 @@
         
         if (hint) {
           hint.innerText = diffDays > 0 
-            ? `* Enchukunna thedi varaku sarigga ${diffDays} rojula gaduvu undi (${selDate.toLocaleDateString('en-GB')}).` 
-            : `* Enchukunna thedi: ${selDate.toLocaleDateString('en-GB')}`;
+            ? `* ఎంచుకున్న తేదీ వరకు సరిగ్గా ${diffDays} రోజుల గడువు ఉంది (${selDate.toLocaleDateString('en-GB')}).` 
+            : `* ఎంచుకున్న తేదీ: ${selDate.toLocaleDateString('en-GB')}`;
         }
       }
       updateMsg();
@@ -208,35 +252,35 @@
       const doc = document.getElementById('docName').value.trim();
       const dueDateVal = document.getElementById('dueDateInput').value;
       const msg = document.getElementById('customMsg').value;
-      const fileInput = document.getElementById('pdfFileInput');
-      const file = fileInput.files[0];
 
       if (!category) {
-        alert('Dayachesi modatlo Vibhagam (Category) enchukondi!');
+        alert('దయచేసి విభాగం (Category) ఎంచుకోండి!');
         document.getElementById('categorySelect').focus();
         return;
       }
 
       if (!name || !rawPhone || !doc || !dueDateVal) {
-        alert('Dayachesi peru, phone number, document vivaralu mariyu gaduvu thedi enter cheyandi!');
+        alert('దయచేసి పేరు, ఫోన్ నంబర్, డాక్యుమెంట్ వివరాలు మరియు గడువు తేదీని నమోదు చేయండి!');
         return;
       }
 
       let cleanDigits = rawPhone.replace(/[^0-9]/g, '');
       if (cleanDigits.length > 10) cleanDigits = cleanDigits.slice(-10);
       if (cleanDigits.length !== 10) {
-        alert('Saraina 10 ankela mobile number ivvandi!');
+        alert('సరైన 10 అంకెల మొబైల్ నంబర్ ఇవ్వండి!');
         return;
       }
 
-      let pdfDataUrl = null;
-      let pdfFileName = null;
-      if (file) {
-        pdfFileName = file.name;
+      let fileDataUrl = null;
+      let fileName = null;
+      let fileType = null;
+      if (activeFile) {
+        fileName = activeFile.name;
+        fileType = activeFile.type.startsWith('image/') ? 'IMAGE' : 'PDF';
         try {
-          pdfDataUrl = await readFileAsDataURL(file);
+          fileDataUrl = await readFileAsDataURL(activeFile);
         } catch(e) {
-          console.log("PDF error:", e);
+          console.log("File read error:", e);
         }
       }
 
@@ -251,8 +295,9 @@
         name,
         phone: cleanDigits,
         docName: doc,
-        pdfName: pdfFileName,
-        pdfData: pdfDataUrl,
+        fileName: fileName,
+        fileData: fileDataUrl,
+        fileType: fileType,
         sentDate: `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`,
         dueDate: formattedDue,
         dueDateRaw: dueDateVal,
@@ -268,15 +313,16 @@
       document.getElementById('name').value = '';
       document.getElementById('phone').value = '';
       document.getElementById('docName').value = '';
-      fileInput.value = '';
       document.getElementById('categorySelect').value = '';
+      clearSelectedFile();
       initDefaultDate();
       updateMsg();
 
-      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      // Mobile share
+      if (activeFile && navigator.canShare && navigator.canShare({ files: [activeFile] })) {
         try {
           await navigator.share({
-            files: [file],
+            files: [activeFile],
             title: `${category}: ${doc}`,
             text: msg
           });
@@ -289,13 +335,17 @@
       window.location.href = `https://api.whatsapp.com/send?phone=91${cleanDigits}&text=${encodeURIComponent(msg)}`;
     }
 
-    function viewSavedPdf(id) {
+    function viewAttachment(id) {
       const item = getEntries().find(r => r.id === id);
-      if (item && item.pdfData) {
+      if (item && item.fileData) {
         const newWindow = window.open();
-        newWindow.document.write(`<iframe src="${item.pdfData}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+        if (item.fileType === 'IMAGE') {
+          newWindow.document.write(`<body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;"><img src="${item.fileData}" style="max-width:100%;max-height:100vh;object-fit:contain;"></body>`);
+        } else {
+          newWindow.document.write(`<iframe src="${item.fileData}" frameborder="0" style="border:0;width:100%;height:100%;" allowfullscreen></iframe>`);
+        }
       } else {
-        alert("Ee record ki PDF upload cheyaledhu!");
+        alert("ఈ రికార్డుకు ఎలాంటి ఫైల్ లేదా ఫోటో అప్‌లోడ్ చేయబడలేదు!");
       }
     }
 
@@ -309,7 +359,7 @@
     }
 
     function deleteRecord(id) {
-      if (confirm('Ee record ni delete cheyalani anukuntunnara?')) {
+      if (confirm('ఈ రికార్డును తొలగించాలనుకుంటున్నారా?')) {
         saveEntries(getEntries().filter(item => item.id !== id));
       }
     }
@@ -326,7 +376,7 @@
       }
 
       if (list.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Inka elanti records levu.</p>';
+        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">ఇంకా ఎలాంటి రికార్డులు లేవు.</p>';
         return;
       }
 
@@ -342,9 +392,9 @@
                 </div>
                 <p class="text-slate-500 font-mono text-[11px] mt-0.5">+91 ${item.phone}</p>
                 <p class="text-indigo-700 font-semibold mt-0.5">${item.docName}</p>
-                ${item.pdfName ? `
+                ${item.fileName ? `
                   <p class="text-slate-500 text-[10px] mt-0.5 flex items-center gap-1">
-                    <i class="fas fa-paperclip text-red-500"></i> ${item.pdfName}
+                    <i class="fas ${item.fileType === 'IMAGE' ? 'fa-camera text-emerald-600' : 'fa-file-pdf text-red-500'}"></i> ${item.fileName}
                   </p>
                 ` : ''}
               </div>
@@ -364,49 +414,5 @@
             </div>
 
             <div class="flex flex-wrap gap-1.5 pt-1 border-t">
-              ${item.pdfData ? `
-                <button onclick="viewSavedPdf(${item.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-2.5 py-1.5 rounded-lg text-center flex items-center gap-1">
-                  <i class="fas fa-eye text-indigo-600"></i> PDF చూడు
-                </button>
-              ` : ''}
-
-              ${item.status === 'PENDING' ? `
-                <button onclick="sendReminder('${item.phone}', '${item.name}', '${item.docName}', '${item.dueDate}', '${item.category || 'Mutations'}')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
-                  🔔 రిమైండ్
-                </button>
-                <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
-                  ✓ రిటర్న్
-                </button>
-              ` : '<span class="flex-1 text-slate-400 py-1.5 text-center font-bold">పూర్తయింది</span>'}
-
-              <button onclick="deleteRecord(${item.id})" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg hover:text-red-600">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function pickContact() {
-      if ('contacts' in navigator && 'ContactsManager' in window) {
-        try {
-          const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
-          if (contacts.length > 0) {
-            if (contacts[0].name?.[0]) document.getElementById('name').value = contacts[0].name[0];
-            if (contacts[0].tel?.[0]) {
-              let clean = contacts[0].tel[0].replace(/[^0-9]/g, '');
-              if (clean.length > 10) clean = clean.slice(-10);
-              document.getElementById('phone').value = clean;
-            }
-            updateMsg();
-          }
-        } catch (ex) {}
-      }
-    }
-
-    initDefaultDate();
-    render();
-  </script>
-</body>
-</html>
+              ${item.fileData ? `
+                <button onclick="viewAttachment(${item.id
