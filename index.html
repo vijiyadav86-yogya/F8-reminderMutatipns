@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు</title>
+  <title>Tahsildar Office, Peddavaduguru</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -31,13 +31,13 @@
         </button>
       </div>
 
-      <!-- 1st STEP: Category Dropdown (Default '-- ఎంచుకోండి --') -->
+      <!-- 1st STEP: Category Dropdown (Select Option) -->
       <div class="bg-amber-50/80 p-3 rounded-xl border-2 border-amber-300">
         <label class="block text-xs font-bold text-amber-900 mb-1 flex items-center gap-1.5">
-          <i class="fas fa-list-check text-amber-600"></i> విభాగం ఎంచుకోండి (Select Category) <span class="text-red-500">*</span>
+          <i class="fas fa-list-check text-amber-600"></i> విభాగం ఎంచుకోండి (Category) <span class="text-red-500">*</span>
         </label>
         <select id="categorySelect" onchange="updateMsg()" class="w-full border-2 border-amber-300 rounded-xl p-2.5 text-xs font-bold text-slate-800 bg-white outline-none focus:border-indigo-600">
-          <option value="" selected>-- ఎంచుకోండి (Select Category) --</option>
+          <option value="" selected disabled>-- Select / ఎంచుకోండి --</option>
           <option value="Mutations">1. Mutations (మ్యుటేషన్స్)</option>
           <option value="PGRS">2. PGRS (ప్రజా సమస్యల పరిష్కార వేదిక)</option>
           <option value="Mandala arjilu">3. Mandala arjilu (మండల అర్జీలు)</option>
@@ -73,26 +73,21 @@
         <p class="text-[10px] text-slate-500">* PDF ఫైల్ సేవ్ అయి, కింద రికార్డులో "PDF చూడు" బటన్ ద్వారా ఓపెన్ చేసుకోవచ్చు.</p>
       </div>
 
-      <!-- Due Date Selection & Manual Entry -->
+      <!-- Manual Due Date Selection -->
       <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు రోజులు (షార్ట్‌కట్)</label>
-            <select id="daysSelect" onchange="changeDaysShortcut()" class="w-full border rounded-lg p-2 text-xs bg-white font-medium outline-none">
-              <option value="custom" selected>✏️ కస్టమ్ / మ్యాన్యువల్</option>
-              <option value="1">1 రోజు</option>
-              <option value="2">2 రోజులు</option>
-              <option value="7">7 రోజులు</option>
-              <option value="15">15 రోజులు</option>
-              <option value="30">30 రోజులు</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు తేదీ (Due Date) <span class="text-red-500">*</span></label>
-            <input type="date" id="dueDateInput" oninput="onManualDateChange()" onchange="onManualDateChange()" class="w-full border rounded-lg p-1.5 text-xs bg-white font-semibold outline-none focus:border-indigo-600">
-          </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">
+            📅 గడువు తేదీ (Due Date Manual Entry) <span class="text-red-500">*</span>
+          </label>
+          <input type="date" id="dueDateInput" oninput="onDatePicked()" onchange="onDatePicked()" class="w-full border-2 border-indigo-300 rounded-xl p-2.5 text-sm bg-white font-bold outline-none focus:border-indigo-600">
         </div>
-        <p id="dateHint" class="text-[10px] text-indigo-700 font-medium">* క్యాలెండర్ నొక్కి తేదీని నేరుగా ఎంచుకోండి లేదా రోజులు ఎంచుకోండి.</p>
+        <div class="flex gap-1.5 pt-1">
+          <button type="button" onclick="setQuickDays(2)" class="flex-1 bg-white border border-slate-300 text-slate-700 py-1 text-xs rounded-lg font-semibold hover:bg-slate-100">2 Days</button>
+          <button type="button" onclick="setQuickDays(7)" class="flex-1 bg-white border border-slate-300 text-slate-700 py-1 text-xs rounded-lg font-semibold hover:bg-slate-100">7 Days</button>
+          <button type="button" onclick="setQuickDays(15)" class="flex-1 bg-white border border-slate-300 text-slate-700 py-1 text-xs rounded-lg font-semibold hover:bg-slate-100">15 Days</button>
+          <button type="button" onclick="setQuickDays(30)" class="flex-1 bg-white border border-slate-300 text-slate-700 py-1 text-xs rounded-lg font-semibold hover:bg-slate-100">30 Days</button>
+        </div>
+        <p id="dateHint" class="text-[10px] text-indigo-700 font-medium">* Date meeda tap chesi direct ga calendar lo thedi select cheyandi.</p>
       </div>
 
       <!-- Message Preview Box -->
@@ -125,34 +120,21 @@
       return `${year}-${month}-${day}`;
     }
 
-    // Default setup: 15 రోజుల తేదీని మొదట్లోనే సెట్ చేయడం
     function initDefaultDate() {
       const target = new Date();
       target.setDate(target.getDate() + 15);
       document.getElementById('dueDateInput').value = formatDate(target);
-      document.getElementById('daysSelect').value = '15';
-      document.getElementById('dateHint').innerText = `* 15 రోజుల గడువు (${target.toLocaleDateString('en-GB')}) సెట్ చేయబడింది.`;
+      onDatePicked();
     }
 
-    function changeDaysShortcut() {
-      const mode = document.getElementById('daysSelect').value;
-      const hint = document.getElementById('dateHint');
-
-      if (mode === 'custom') {
-        hint.innerText = '* క్యాలెండర్ నొక్కి మీకు కావలసిన తేదీని ఎంచుకోండి.';
-        onManualDateChange();
-        return;
-      }
-
-      const days = parseInt(mode, 10);
+    function setQuickDays(days) {
       const target = new Date();
       target.setDate(target.getDate() + days);
       document.getElementById('dueDateInput').value = formatDate(target);
-      hint.innerText = `* ${days} రోజుల గడువు (${target.toLocaleDateString('en-GB')}) సెట్ చేయబడింది.`;
-      updateMsg();
+      onDatePicked();
     }
 
-    function onManualDateChange() {
+    function onDatePicked() {
       const val = document.getElementById('dueDateInput').value;
       const hint = document.getElementById('dateHint');
       if (val) {
@@ -164,8 +146,8 @@
         
         if (hint) {
           hint.innerText = diffDays > 0 
-            ? `* నేటి నుండి ${diffDays} రోజుల గడువు (${selDate.toLocaleDateString('en-GB')}) ఇవ్వబడింది.` 
-            : `* ఎంచుకున్న గడువు తేదీ: ${selDate.toLocaleDateString('en-GB')}`;
+            ? `* Enchukunna thedi varaku sarigga ${diffDays} rojula gaduvu undi (${selDate.toLocaleDateString('en-GB')}).` 
+            : `* Enchukunna thedi: ${selDate.toLocaleDateString('en-GB')}`;
         }
       }
       updateMsg();
@@ -230,20 +212,20 @@
       const file = fileInput.files[0];
 
       if (!category) {
-        alert('దయచేసి ముందుగా విభాగం (Select Category) ను ఎంచుకోండి!');
+        alert('Dayachesi modatlo Vibhagam (Category) enchukondi!');
         document.getElementById('categorySelect').focus();
         return;
       }
 
       if (!name || !rawPhone || !doc || !dueDateVal) {
-        alert('దయచేసి పేరు, ఫోన్ నంబర్, డాక్యుమెంట్ వివరాలు మరియు గడువు తేదీని నమోదు చేయండి!');
+        alert('Dayachesi peru, phone number, document vivaralu mariyu gaduvu thedi enter cheyandi!');
         return;
       }
 
       let cleanDigits = rawPhone.replace(/[^0-9]/g, '');
       if (cleanDigits.length > 10) cleanDigits = cleanDigits.slice(-10);
       if (cleanDigits.length !== 10) {
-        alert('దయచేసి సరైన 10 అంకెల మొబైల్ నంబర్ ఇవ్వండి!');
+        alert('Saraina 10 ankela mobile number ivvandi!');
         return;
       }
 
@@ -254,7 +236,7 @@
         try {
           pdfDataUrl = await readFileAsDataURL(file);
         } catch(e) {
-          console.log("PDF read error:", e);
+          console.log("PDF error:", e);
         }
       }
 
@@ -282,7 +264,7 @@
       list.unshift(record);
       saveEntries(list);
 
-      // Reset
+      // Form reset
       document.getElementById('name').value = '';
       document.getElementById('phone').value = '';
       document.getElementById('docName').value = '';
@@ -313,7 +295,7 @@
         const newWindow = window.open();
         newWindow.document.write(`<iframe src="${item.pdfData}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
       } else {
-        alert("ఈ రికార్డుకు ఎలాంటి PDF అప్‌లోడ్ చేయబడలేదు!");
+        alert("Ee record ki PDF upload cheyaledhu!");
       }
     }
 
@@ -327,7 +309,7 @@
     }
 
     function deleteRecord(id) {
-      if (confirm('ఈ రికార్డును తొలగించాలనుకుంటున్నారా?')) {
+      if (confirm('Ee record ni delete cheyalani anukuntunnara?')) {
         saveEntries(getEntries().filter(item => item.id !== id));
       }
     }
@@ -344,7 +326,7 @@
       }
 
       if (list.length === 0) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">ఇంకా ఎలాంటి రికార్డులు లేవు.</p>';
+        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Inka elanti records levu.</p>';
         return;
       }
 
@@ -424,7 +406,6 @@
     }
 
     initDefaultDate();
-    updateMsg();
     render();
   </script>
 </body>
