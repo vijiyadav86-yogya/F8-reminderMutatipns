@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>F-8 Mutation & PDF Reminder Tracker</title>
+  <title>Tahsildar Office, Peddavaduguru - F-8 Reminder Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -11,18 +11,21 @@
   <div class="max-w-md mx-auto space-y-4">
     
     <!-- Header -->
-    <div class="bg-indigo-700 text-white p-5 rounded-2xl shadow">
-      <h1 class="text-xl font-bold flex items-center gap-2">
-        <i class="fas fa-file-invoice"></i> F-8 రిమైండర్ ట్రాకర్
-      </h1>
-      <p class="text-indigo-200 text-xs mt-1">కాంటాక్ట్ సెలెక్టర్, PDF అప్‌లోడ్ & కస్టమ్ గడువు</p>
+    <div class="bg-indigo-800 text-white p-5 rounded-2xl shadow-md border-b-4 border-amber-500">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-landmark text-2xl text-amber-400"></i>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight">తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు</h1>
+          <p class="text-indigo-200 text-xs">F-8 మ్యుటేషన్ & PDF అధికారిక రిమైండర్ ట్రాకర్</p>
+        </div>
+      </div>
     </div>
 
     <!-- Entry Form -->
     <div class="bg-white p-5 rounded-2xl shadow border border-slate-200 space-y-3">
       <div class="flex justify-between items-center">
-        <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
-          <i class="fas fa-plus-circle text-indigo-600"></i> కొత్త ఎంట్రీ & PDF షేర్
+        <h2 class="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+          <i class="fas fa-file-export text-indigo-600"></i> కొత్త ఎంట్రీ & నోటీస్ షేర్
         </h2>
         <!-- Phone Contact Picker Button -->
         <button type="button" onclick="pickContact()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-sm">
@@ -31,8 +34,8 @@
       </div>
       
       <div>
-        <label class="block text-xs font-semibold mb-1 text-slate-600">గ్రహీత పేరు (Person Name)</label>
-        <input type="text" id="name" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: రాము">
+        <label class="block text-xs font-semibold mb-1 text-slate-600">గ్రహీత పేరు (Person / VRO Name)</label>
+        <input type="text" id="name" oninput="updatePreviewMessage()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: రాము (VRO)">
       </div>
 
       <div>
@@ -42,16 +45,15 @@
 
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">డాక్యుమెంట్ / F-8 నంబర్</label>
-        <input type="text" id="docName" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 Mutation Report">
+        <input type="text" id="docName" oninput="updatePreviewMessage()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 Mutation No. 123/2026">
       </div>
 
       <!-- PDF File Upload Box -->
       <div class="bg-indigo-50/60 p-3 rounded-xl border border-indigo-200">
         <label class="block text-xs font-bold text-indigo-900 mb-1 flex items-center gap-1">
-          <i class="fas fa-file-pdf text-red-500"></i> PDF డాక్యుమెంట్ ఎంచుకోండి (తప్పనిసరి)
+          <i class="fas fa-file-pdf text-red-500"></i> PDF డాక్యుమెంట్ ఎంచుకోండి
         </label>
-        <input type="file" id="pdfFile" accept="application/pdf" class="w-full border rounded-xl p-2 text-xs text-slate-600 bg-white file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-600 file:text-white file:text-xs">
-        <p class="text-[10px] text-indigo-600 mt-1">* ఈ PDF వాట్సాప్ షేర్ ద్వారా నేరుగా అవతలి వ్యక్తికి వెళ్తుంది.</p>
+        <input type="file" id="pdfFile" accept="application/pdf" class="w-full border rounded-xl p-2 text-xs text-slate-600 bg-white file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-700 file:text-white file:text-xs">
       </div>
 
       <!-- Custom Days or Custom Date Selection -->
@@ -60,9 +62,9 @@
           <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు రోజులు (Days)</label>
           <select id="daysSelect" onchange="handleDaysChange()" class="w-full border rounded-lg p-2 text-xs bg-white outline-none focus:border-indigo-600 font-medium">
             <option value="2">2 రోజులు</option>
-            <option value="7">7 రోజులు (1 వారం)</option>
+            <option value="7">7 రోజులు</option>
             <option value="15" selected>15 రోజులు</option>
-            <option value="30">30 రోజులు (1 నెల)</option>
+            <option value="30">30 రోజులు</option>
             <option value="custom">కస్టమ్ రోజులు...</option>
           </select>
           <input type="number" id="customDaysInput" placeholder="రోజుల సంఖ్య" class="hidden mt-1.5 w-full border rounded-lg p-1.5 text-xs outline-none" oninput="updateDueDateByDays(this.value)">
@@ -70,12 +72,21 @@
 
         <div>
           <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు తేదీ (Due Date)</label>
-          <input type="date" id="dueDateInput" class="w-full border rounded-lg p-1.5 text-xs bg-white outline-none focus:border-indigo-600">
+          <input type="date" id="dueDateInput" onchange="updatePreviewMessage()" class="w-full border rounded-lg p-1.5 text-xs bg-white outline-none focus:border-indigo-600">
         </div>
       </div>
 
+      <!-- Official Message Preview / Customizer -->
+      <div>
+        <label class="block text-xs font-semibold mb-1 text-slate-600 flex justify-between items-center">
+          <span>అధికారిక WhatsApp మెసేజ్ ప్రివ్యూ</span>
+          <span class="text-[10px] text-indigo-600 font-normal">(ఎడిట్ చేసుకోవచ్చు)</span>
+        </label>
+        <textarea id="customMsg" rows="5" class="w-full border rounded-xl p-2.5 text-xs font-sans text-slate-700 bg-slate-50 outline-none focus:border-indigo-600 leading-relaxed"></textarea>
+      </div>
+
       <button type="button" onclick="handleSend()" class="w-full bg-emerald-600 active:bg-emerald-700 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow flex items-center justify-center gap-2">
-        <i class="fab fa-whatsapp text-lg"></i> PDF & మేసేజ్ వాట్సాప్‌లో పంపు
+        <i class="fab fa-whatsapp text-lg"></i> వాట్సాప్‌లో అధికారిక నోటీస్ పంపు
       </button>
     </div>
 
@@ -93,7 +104,7 @@
   </div>
 
   <script>
-    // కాంటాక్ట్ పిక్కర్ ఫంక్షన్ (ఫోన్ కాంటాక్ట్స్ ఓపెన్ చేయడానికి)
+    // కాంటాక్ట్ పిక్కర్
     async function pickContact() {
       if ('contacts' in navigator && 'ContactsManager' in window) {
         try {
@@ -106,19 +117,17 @@
               document.getElementById('name').value = contact.name[0];
             }
             if (contact.tel && contact.tel[0]) {
-              // 10 అంకెల నంబర్ క్లీన్ చేయడం
               let rawNum = contact.tel[0].replace(/[^0-9]/g, '');
-              if (rawNum.length > 10) {
-                rawNum = rawNum.slice(-10);
-              }
+              if (rawNum.length > 10) rawNum = rawNum.slice(-10);
               document.getElementById('phone').value = rawNum;
             }
+            updatePreviewMessage();
           }
         } catch (ex) {
-          console.log("Contact selection closed");
+          console.log("Contact closed");
         }
       } else {
-        alert("మీ బ్రౌజర్ నేరుగా కాంటాక్ట్ బుక్ ఓపెన్ చేయడాన్ని సపోర్ట్ చేయదు (Chrome లో బెస్ట్ సపోర్ట్ ఉంటుంది). దయచేసి పేరు, నంబర్ నేరుగా టైప్ చేయండి.");
+        alert("మీ బ్రౌజర్ లో కాంటాక్ట్ పిక్కర్ సపోర్ట్ లేదు. నేరుగా టైప్ చేయండి.");
       }
     }
 
@@ -130,6 +139,7 @@
       const target = new Date();
       target.setDate(target.getDate() + 15);
       document.getElementById('dueDateInput').value = formatDateYMD(target);
+      updatePreviewMessage();
     }
 
     function handleDaysChange() {
@@ -151,7 +161,29 @@
         const d = new Date();
         d.setDate(d.getDate() + days);
         document.getElementById('dueDateInput').value = formatDateYMD(d);
+        updatePreviewMessage();
       }
+    }
+
+    // Tahsildar Peddavaduguru అఫీషియల్ డిఫాల్ట్ మెసేజ్ జనరేటర్
+    function updatePreviewMessage() {
+      const name = document.getElementById('name').value.trim() || '[పేరు]';
+      const docName = document.getElementById('docName').value.trim() || '[డాక్యుమెంట్ / F-8 నంబర్]';
+      const dueDateVal = document.getElementById('dueDateInput').value;
+      
+      let formattedDate = dueDateVal;
+      let diffDays = 15;
+      if (dueDateVal) {
+        const d = new Date(dueDateVal);
+        formattedDate = d.toLocaleDateString('en-GB');
+        const sentDate = new Date();
+        const diffTime = d - sentDate;
+        diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+      }
+
+      const defaultMsg = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${docName}* సంబంధించిన ఫైల్/PDF పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${diffDays} రోజుల్లోగా* (చివరి తేదీ: *${formattedDate}*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
+
+      document.getElementById('customMsg').value = defaultMsg;
     }
 
     function getEntries() {
@@ -168,6 +200,7 @@
       let phone = document.getElementById('phone').value.trim();
       const docName = document.getElementById('docName').value.trim();
       const dueDateVal = document.getElementById('dueDateInput').value;
+      const customMessage = document.getElementById('customMsg').value;
       const fileInput = document.getElementById('pdfFile');
       const file = fileInput.files[0];
 
@@ -193,7 +226,7 @@
         name,
         phone,
         docName,
-        fileName: file ? file.name : 'PDF File',
+        fileName: file ? file.name : 'PDF Document',
         sentDate: sentDate.toLocaleDateString('en-GB'),
         dueDate: dueDateObj.toLocaleDateString('en-GB'),
         dueDateRaw: dueDateVal,
@@ -205,9 +238,7 @@
       list.unshift(record);
       saveEntries(list);
 
-      const messageText = `నమస్కారం ${name} గారు, మీకు ${docName} పంపడం జరిగినది. దయచేసి విచారించి ${diffDays} రోజుల్లోగా (${record.dueDate}) రిపోర్ట్ ఇవ్వగలరు.`;
-
-      // Clear Form Fields
+      // ఫారమ్ ఫీల్డ్స్ క్లియర్
       document.getElementById('name').value = '';
       document.getElementById('phone').value = '';
       document.getElementById('docName').value = '';
@@ -215,13 +246,13 @@
       document.getElementById('customDaysInput').classList.add('hidden');
       initDueDate();
 
-      // Mobile Web Share tho PDF + Text Direct Sharing
+      // ఫైల్ షేర్ ఉంటే ఫైల్ + టెక్స్ట్ షేర్ అవుతాయి
       if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
             files: [file],
-            title: docName,
-            text: messageText
+            title: `F-8: ${docName}`,
+            text: customMessage
           });
           fileInput.value = '';
           return;
@@ -230,8 +261,10 @@
         }
       }
 
+      // డైరెక్ట్ WhatsApp టెక్స్ట్ URL (టెక్స్ట్ ఖచ్చితంగా వెళ్తుంది)
       fileInput.value = '';
-      window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(messageText)}`;
+      const waUrl = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(customMessage)}`;
+      window.location.href = waUrl;
     }
 
     function markReturned(id) {
@@ -239,13 +272,14 @@
       saveEntries(list);
     }
 
+    // అఫీషియల్ డిలే రిమైండర్ మెసేజ్
     function sendReminder(phone, name, docName, dueDateStr) {
-      const text = `రిమైండర్: ${name} గారు, మీరు ఇవ్వాల్సిన ${docName} గడువు (${dueDateStr}) ముగిసింది. దయచేసి ఆలస్యం చేయకుండా వెంటనే రిపోర్ట్ ఇవ్వండి.`;
+      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n*అత్యవసర రిమైండర్:*\n${name} గారు, మీకు ఇచ్చిన *${docName}* విచారణ గడువు తేదీ (*${dueDateStr}*) ముగిసినది.\n\nమీరు నివేదిక సమర్పించడంలో ఆలస్యం (Delay) చేస్తున్నారు. దయచేసి ఎలాంటి జాప్యం లేకుండా వెంటనే విచారణ నివేదికను కార్యాలయానికి సమర్పించవలసిందిగా కోరడమైనది.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
       window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(text)}`;
     }
 
     function deleteRecord(id) {
-      if (confirm('ఈ రికార్డును తీసివేయాలనుకుంటున్నారా?')) {
+      if (confirm('ఈ రికార్డును తొలగించాలనుకుంటున్నారా?')) {
         const list = getEntries().filter(item => item.id !== id);
         saveEntries(list);
       }
@@ -273,15 +307,15 @@
               <div>
                 <p class="font-bold text-sm text-slate-800">${item.name}</p>
                 <p class="text-slate-500 font-mono text-[11px]">${item.phone}</p>
-                <p class="text-indigo-600 font-medium mt-0.5">${item.docName}</p>
+                <p class="text-indigo-700 font-semibold mt-0.5">${item.docName}</p>
                 <p class="text-slate-400 text-[10px] mt-0.5"><i class="fas fa-paperclip"></i> ${item.fileName}</p>
               </div>
               <div class="flex flex-col items-end gap-1">
                 ${item.status === 'RETURNED' 
-                  ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold text-[10px]">✓ Returned</span>' 
+                  ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold text-[10px]">✓ రిపోర్ట్ వచ్చింది</span>' 
                   : isOverdue 
-                    ? '<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold text-[10px] animate-pulse">Overdue (Delay)</span>' 
-                    : '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold text-[10px]">Pending</span>'}
+                    ? '<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold text-[10px] animate-pulse">Overdue (ఆలస్యం)</span>' 
+                    : '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold text-[10px]">పెండింగ్</span>'}
                 <span class="text-[10px] text-slate-400 font-medium">గడువు: ${item.daysAllowed} రోజులు</span>
               </div>
             </div>
@@ -294,7 +328,7 @@
             <div class="flex gap-2 pt-1 border-t">
               ${item.status === 'PENDING' ? `
                 <button onclick="sendReminder('${item.phone}', '${item.name}', '${item.docName}', '${item.dueDate}')" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
-                  🔔 రిమైండ్
+                  🔔 రిమైండ్ పంపు
                 </button>
                 <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
                   ✓ రిటర్న్ వచ్చింది
