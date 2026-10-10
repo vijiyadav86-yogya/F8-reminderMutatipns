@@ -162,9 +162,11 @@
             }
             updateNoticeText();
           }
-        } catch (ex) {}
+        } catch (ex) {
+          console.log(ex);
+        }
       } else {
-        alert('డైరెక్ట్‌గా టైప్ చేయండి.');
+        alert('Browser contacts API ki support ivvaledhu. Direct ga type cheyandi.');
       }
     }
 
@@ -174,7 +176,7 @@
         document.getElementById('fileBadge').classList.remove('hidden');
         var isImg = pickedFile.type.startsWith('image/');
         document.getElementById('fileBadgeText').innerText = isImg 
-          ? '📸 Photo: ' + (pickedFile.name || 'Doc') 
+          ? '📸 Photo: ' + (pickedFile.name || 'Captured Image') 
           : '📄 PDF: ' + pickedFile.name;
       }
     }
@@ -199,9 +201,9 @@
 
     function updateDateFromCalendar(val) {
       if (val) {
-        var p = val.split('-');
-        if (p.length === 3) {
-          document.getElementById('dueDateField').value = p[2] + '/' + p[1] + '/' + p[0];
+        var parts = val.split('-');
+        if (parts.length === 3) {
+          document.getElementById('dueDateField').value = parts[2] + '/' + parts[1] + '/' + parts[0];
           updateNoticeText();
         }
       }
@@ -213,6 +215,7 @@
       var doc = document.getElementById('docName').value.trim() || '[రిఫరెన్స్ వివరాలు]';
       var dateVal = document.getElementById('dueDateField').value.trim();
       var days = document.getElementById('daysSelect').value || '3';
+
       var catText = category ? ' (' + category + ')' : '';
 
       var text = '*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n' +
@@ -255,11 +258,13 @@
       var msg = document.getElementById('customMsg').value;
 
       if (!category) {
-        alert('దయచేసి విభాగం ఎంచుకోండి!');
+        alert('దయచేసి విభాగం (Category) ఎంచుకోండి!');
+        document.getElementById('categorySelect').focus();
         return;
       }
+
       if (!name || !rawPhone || !doc || !dueDateVal) {
-        alert('వివరాలన్నీ నమోదు చేయండి!');
+        alert('దయచేసి వివరాలన్నీ నమోదు చేయండి!');
         return;
       }
 
@@ -313,7 +318,11 @@
 
       if (pickedFile && navigator.canShare && navigator.canShare({ files: [pickedFile] })) {
         try {
-          await navigator.share({ files: [pickedFile], title: category + ': ' + doc, text: msg });
+          await navigator.share({
+            files: [pickedFile],
+            title: category + ': ' + doc,
+            text: msg
+          });
           return;
         } catch (e) {}
       }
@@ -324,11 +333,11 @@
     function viewAttachment(id) {
       var item = getEntries().find(function(r) { return r.id === id; });
       if (item && item.fileData) {
-        var w = window.open();
+        var newWindow = window.open();
         if (item.fileType === 'IMAGE') {
-          w.document.write('<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;"><img src="' + item.fileData + '" style="max-width:100%;max-height:100vh;"></body>');
+          newWindow.document.write('<body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;"><img src="' + item.fileData + '" style="max-width:100%;max-height:100vh;object-fit:contain;"></body>');
         } else {
-          w.document.write('<iframe src="' + item.fileData + '" frameborder="0" style="border:0;width:100%;height:100%;"></iframe>');
+          newWindow.document.write('<iframe src="' + item.fileData + '" frameborder="0" style="border:0;width:100%;height:100%;" allowfullscreen></iframe>');
         }
       }
     }
@@ -342,7 +351,7 @@
     function sendReminder(phone, name, docName, dueDateStr, category) {
       var text = '*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\n' +
                  '*అత్యవసర రిమైండర్:*\n' + name + ' గారు, మీకు ఇచ్చిన *' + docName + '* (' + (category || 'ఫైల్') + ') విచారణ గడువు తేదీ (*' + dueDateStr + '*) ముగిసినది.\n\n' +
-                 'దయచేసి వెంటనే విచారణ నివేదికను కార్యాలయానికి సమర్పించగలరు.\n\n' +
+                 'మీరు నివేదిక సమర్పించడంలో ఆలస్యం (Delay) చేస్తున్నారు. దయచేసి వెంటనే విచారణ నివేదికను సమర్పించగలరు.\n\n' +
                  'ఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*';
       window.location.href = 'https://api.whatsapp.com/send?phone=91' + phone + '&text=' + encodeURIComponent(text);
     }
@@ -391,5 +400,4 @@
             '</div>' +
             '<div class="flex flex-wrap gap-1.5 pt-1 border-t">' +
               (item.fileData ? ('<button onclick="viewAttachment(' + item.id + ')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-2.5 py-1.5 rounded-lg text-center flex items-center gap-1"><i class="fas ' + (item.fileType === 'IMAGE' ? 'fa-image text-emerald-600' : 'fa-eye text-indigo-600') + '"></i> ' + (item.fileType === 'IMAGE' ? 'ఫోటో చూడు' : 'PDF చూడు') + '</button>') : '') +
-              (item.status === 'PENDING' ? ('<button onclick="sendReminder(\'' + item.phone + '\', \'' + item.name + '\', \'' + item.docName + '\', \'' + item.dueDate + '\', \'' + (item.category || 'Mutations') + '\')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">🔔 రిమైండ్</button><button onclick="markReturned(' + item.id + ')" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">✓ రిటర్న్</button>') : '<span class="flex-1 text-slate-400 py-1.5 text-center font-bold">పూర్తయింది</span>') +
-              '<button onclick="deleteRecord(' + item.id + ')" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg hover:text-red-600"><i class="fas fa-trash"></i></
+              (item.status === 'PENDING' ? ('<button onclick="sendReminder(\'' + item.phone + '\', \'' + item.name + '\', \'' + item.docName + '\', \'' + item.dueDate + '\', \'' + (item.category || 'Mutations') + '\')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">🔔 రిమైండ్</button><button onclick="markReturned(' + item.id + ')" class="flex-1 bg-emerald-600 text-white
