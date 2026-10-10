@@ -12,7 +12,7 @@
     <div class="bg-indigo-700 text-white p-6 rounded-2xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
         <h1 class="text-2xl font-bold">📄 F-8 / PDF రిమైండర్ ట్రాకర్</h1>
-        <p class="text-indigo-200 text-sm mt-1">15 రోజుల గడువు & ఆటోమేటిక్ వాట్సాప్ రిమైండర్</p>
+        <p class="text-indigo-200 text-sm mt-1">15 రోజుల గడువు & వాట్సాప్ రిమైండర్</p>
       </div>
       <button onclick="checkReminders()" class="bg-amber-500 hover:bg-amber-600 text-white font-medium px-4 py-2 rounded-xl text-sm shadow">
         🔔 చెక్ రిమైండర్స్ (Delay Check)
@@ -30,7 +30,7 @@
           </div>
           <div>
             <label class="block text-sm font-semibold mb-1">WhatsApp నంబర్ (10 అంకెలు)</label>
-            <input type="tel" id="phone" pattern="[0-9]{10}" required class="w-full border rounded-xl p-2.5 outline-none focus:border-indigo-600" placeholder="9876543210">
+            <input type="tel" id="phone" pattern="[0-9]{10}" maxlength="10" required class="w-full border rounded-xl p-2.5 outline-none focus:border-indigo-600" placeholder="9876543210">
           </div>
         </div>
 
@@ -67,7 +67,6 @@
             </tr>
           </thead>
           <tbody id="recordList" class="divide-y divide-slate-100">
-            <!-- Records Load Here -->
           </tbody>
         </table>
       </div>
@@ -79,9 +78,9 @@
 
     function saveEntry(e) {
       e.preventDefault();
-      const name = document.getElementById('name').value;
-      const phone = document.getElementById('phone').value;
-      const docName = document.getElementById('docName').value;
+      const name = document.getElementById('name').value.trim();
+      let phone = document.getElementById('phone').value.trim();
+      const docName = document.getElementById('docName').value.trim();
 
       const sentDate = new Date();
       const dueDate = new Date();
@@ -101,9 +100,12 @@
       localStorage.setItem('f8_records', JSON.stringify(entries));
       render();
 
-      const msg = encodeURIComponent(`నమస్కారం ${name} గారు, మీకు ${docName} పంపడం జరిగినది. దయచేసి విచారించి 15 రోజుల్లోగా రిపోర్ట్ ఇవ్వగలరు.`);
-      window.open(`https://wa.me/91${phone}?text=${msg}`, '_blank');
+      const text = `నమస్కారం ${name} గారు, మీకు ${docName} పంపడం జరిగినది. దయచేసి విచారించి 15 రోజుల్లోగా రిపోర్ట్ ఇవ్వగలరు.`;
+      const waUrl = `https://api.whatsapp.com/send?phone=91${phone}&text=${encodeURIComponent(text)}`;
+      
       document.getElementById('docForm').reset();
+      // Brave బ్రౌజర్ పాప్-అప్ ఆపకుండా నేరుగా వాట్సాప్ రీడైరెక్ట్ చేయడానికి
+      window.location.href = waUrl;
     }
 
     function markReturned(id) {
@@ -112,9 +114,60 @@
       render();
     }
 
+    function sendSingleReminder(phone, name, docName) {
+      const text = `రిమైండర్: ${name} గారు, మీరు ఇవ్వాల్సిన ${docName} గడువు 15 రోజులు ముగిసింది. దయచేసి ఆలస్యం చేయకుండా వెంటనే రిపోర్ట్ ఇవ్వండి.`;
+      window.location.href = `https://api.whatsapp.com/send?phone=91${phone}&text=${encodeURIComponent(text)}`;
+    }
+
     function checkReminders() {
       const today = new Date().toISOString().split('T')[0];
       const overdue = entries.filter(e => e.status === 'PENDING' && e.dueDate <= today);
       if (overdue.length === 0) {
+        alert('ప్రస్తుతం గడువు ముగిసిన (Overdue) ఫైల్స్ ఏమీ లేవు!');
+        return;
+      }
+      // మొదటి ఓవర్‌డ్యూ ఉన్న వ్యక్తికి వాట్సాప్ ఓపెన్ అవుతుంది
+      sendSingleReminder(overdue[0].phone, overdue[0].name, overdue[0].docName);
+    }
 
-      
+    function render() {
+      const tbody = document.getElementById('recordList');
+      const today = new Date().toISOString().split('T')[0];
+      if (entries.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">ఇంకా ఎలాంటి రికార్డులు లేవు.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = entries.map(item => {
+        let isOverdue = item.status === 'PENDING' && item.dueDate <= today;
+        let badge = item.status === 'RETURNED' 
+          ? '<span class="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-xs font-semibold">Returned</span>'
+          : isOverdue 
+            ? '<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold">Overdue (Delay)</span>'
+            : '<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-xs font-semibold">Pending</span>';
+
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="p-3 font-semibold">${item.name}</td>
+            <td class="p-3">${item.phone}</td>
+            <td class="p-3 text-slate-500">${item.sentDate}</td>
+            <td class="p-3 text-slate-500">${item.dueDate}</td>
+            <td class="p-3">${badge}</td>
+            <td class="p-3 text-right space-x-1">
+              ${item.status === 'PENDING' ? `
+                <button onclick="sendSingleReminder('${item.phone}', '${item.name}', '${item.docName}')" class="bg-amber-500 hover:bg-amber-600 text-white text-xs px-2.5 py-1.5 rounded-lg font-medium shadow-sm">
+                  రిమైండ్
+                </button>
+                <button onclick="markReturned(${item.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-2.5 py-1.5 rounded-lg font-medium shadow-sm">
+                  ✓ రిటర్న్
+                </button>
+              ` : '<span class="text-xs text-slate-400 font-medium">పూర్తయింది</span>'}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    render();
+  </script>
+</body>
+</html>
