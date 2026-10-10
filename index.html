@@ -9,7 +9,7 @@
 </head>
 <body class="bg-slate-100 min-h-screen p-3 text-slate-800">
 
-  <!-- 1. సెక్యూరిటీ పిన్ స్క్రీన్ (PIN: 1207) -->
+  <!-- 1. Security PIN Screen (PIN: 1207) -->
   <div id="loginScreen" class="fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-xs p-6 rounded-2xl shadow-2xl text-center space-y-4">
       <div class="w-14 h-14 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center mx-auto text-2xl">
@@ -29,7 +29,7 @@
     </div>
   </div>
 
-  <!-- 2. మెయిన్ అప్లికేషన్ -->
+  <!-- 2. Main App -->
   <div id="mainApp" class="max-w-md mx-auto space-y-4 hidden">
     
     <!-- Header -->
@@ -74,7 +74,15 @@
         <input type="text" id="docName" oninput="updateMsg()" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 Mutation Doc">
       </div>
 
-      <!-- Due Date Selection (Dropdown + Manual Date Entry) -->
+      <!-- PDF File Upload Box -->
+      <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-200">
+        <label class="block text-xs font-bold text-indigo-900 mb-1 flex items-center gap-1.5">
+          <i class="fas fa-file-pdf text-red-500"></i> PDF డాక్యుమెంట్ ఎంచుకోండి
+        </label>
+        <input type="file" id="pdfFileInput" accept="application/pdf" class="w-full border rounded-xl p-2 text-xs text-slate-600 bg-white file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-indigo-700 file:text-white file:text-xs">
+      </div>
+
+      <!-- Due Date Selection -->
       <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
         <div class="grid grid-cols-2 gap-2">
           <div>
@@ -93,10 +101,10 @@
             <input type="date" id="dueDateInput" onchange="onManualDateChange()" class="w-full border rounded-lg p-1.5 text-xs bg-white font-semibold outline-none focus:border-indigo-600">
           </div>
         </div>
-        <p id="dateHint" class="text-[10px] text-indigo-700 font-medium">* 15 రోజుల గడువు ఆటోమేటిక్‌గా లెక్కించబడింది.</p>
+        <p id="dateHint" class="text-[10px] text-indigo-700 font-medium">* 15 రోజుల గడువు సెట్ చేయబడింది.</p>
       </div>
 
-      <!-- Message Box -->
+      <!-- Message Preview Box -->
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">అధికారిక నోటీస్ మెసేజ్ ప్రివ్యూ:</label>
         <textarea id="customMsg" rows="6" class="w-full border rounded-xl p-2.5 text-xs font-sans text-slate-700 bg-slate-50 leading-relaxed outline-none" readonly></textarea>
@@ -159,7 +167,7 @@
       const hint = document.getElementById('dateHint');
 
       if (mode === 'manual') {
-        hint.innerText = '* క్యాలెండర్ నుండి మీకు నచ్చిన తేదీని ఎంచుకోండి.';
+        hint.innerText = '* క్యాలెండర్ నుండి తేదీని ఎంచుకోండి.';
         onManualDateChange();
         return;
       }
@@ -183,7 +191,7 @@
         
         document.getElementById('daysSelect').value = 'manual';
         document.getElementById('dateHint').innerText = diffDays > 0 
-          ? `* నేటి నుండి సరిగ్గా ${diffDays} రోజుల గడువు ఇవ్వబడింది.` 
+          ? `* నేటి నుండి ${diffDays} రోజుల గడువు ఇవ్వబడింది.` 
           : `* ఎంచుకున్న తేదీ: ${selDate.toLocaleDateString('en-GB')}`;
       }
       updateMsg();
@@ -225,15 +233,27 @@
       render();
     }
 
-    function sendWhatsAppNotice() {
+    // PDF ని బ్రౌజర్‌లో Base64 స్ట్రింగ్‌గా రీడ్ చేయడానికి
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function sendWhatsAppNotice() {
       const name = document.getElementById('name').value.trim();
       let rawPhone = document.getElementById('phone').value.trim();
       const doc = document.getElementById('docName').value.trim();
       const dueDateVal = document.getElementById('dueDateInput').value;
       const msg = document.getElementById('customMsg').value;
+      const fileInput = document.getElementById('pdfFileInput');
+      const file = fileInput.files[0];
 
       if (!name || !rawPhone || !doc || !dueDateVal) {
-        alert('దయచేసి పేరు, ఫోన్ నంబర్ మరియు గడువు వివరాలన్నీ నమోదు చేయండి!');
+        alert('దయచేసి పేరు, ఫోన్ నంబర్ మరియు డాక్యుమెంట్ వివరాలన్నీ నమోదు చేయండి!');
         return;
       }
 
@@ -242,6 +262,17 @@
       if (cleanDigits.length !== 10) {
         alert('దయచేసి సరైన 10 అంకెల మొబైల్ నంబర్ ఇవ్వండి!');
         return;
+      }
+
+      let pdfDataUrl = null;
+      let pdfFileName = null;
+      if (file) {
+        pdfFileName = file.name;
+        try {
+          pdfDataUrl = await readFileAsDataURL(file);
+        } catch(e) {
+          console.log("PDF read error:", e);
+        }
       }
 
       const today = new Date();
@@ -254,6 +285,8 @@
         name,
         phone: cleanDigits,
         docName: doc,
+        pdfName: pdfFileName,
+        pdfData: pdfDataUrl,
         sentDate: `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`,
         dueDate: formattedDue,
         dueDateRaw: dueDateVal,
@@ -265,13 +298,40 @@
       list.unshift(record);
       saveEntries(list);
 
+      // Form Reset
       document.getElementById('name').value = '';
       document.getElementById('phone').value = '';
       document.getElementById('docName').value = '';
+      fileInput.value = '';
       document.getElementById('daysSelect').value = '15';
       changeDays();
 
+      // Native Web Share tho file share cheyadaniki prayatnam
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `F-8: ${doc}`,
+            text: msg
+          });
+          return;
+        } catch (e) {
+          console.log('Share dismissed');
+        }
+      }
+
+      // Direct WhatsApp Chat Open
       window.location.href = `https://api.whatsapp.com/send?phone=91${cleanDigits}&text=${encodeURIComponent(msg)}`;
+    }
+
+    function viewSavedPdf(id) {
+      const item = getEntries().find(r => r.id === id);
+      if (item && item.pdfData) {
+        const newWindow = window.open();
+        newWindow.document.write(`<iframe src="${item.pdfData}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+      } else {
+        alert("ఈ రికార్డుకు ఎలాంటి PDF అప్‌లోడ్ చేయబడలేదు!");
+      }
     }
 
     function markReturned(id) {
@@ -310,6 +370,11 @@
                 <p class="font-bold text-sm text-slate-800">${item.name}</p>
                 <p class="text-slate-500 font-mono text-[11px]">+91 ${item.phone}</p>
                 <p class="text-indigo-700 font-semibold mt-0.5">${item.docName}</p>
+                ${item.pdfName ? `
+                  <p class="text-slate-500 text-[10px] mt-0.5 flex items-center gap-1">
+                    <i class="fas fa-paperclip text-red-500"></i> ${item.pdfName}
+                  </p>
+                ` : ''}
               </div>
               <div class="flex flex-col items-end gap-1">
                 ${item.status === 'RETURNED' 
@@ -320,20 +385,30 @@
                 <span class="text-[10px] text-slate-400 font-medium">గడువు: ${item.daysAllowed} రోజులు</span>
               </div>
             </div>
+
             <div class="flex justify-between text-slate-500 border-t pt-2 text-[11px]">
               <span>పంపినది: <b>${item.sentDate}</b></span>
               <span>చివరి తేదీ: <b class="${isOverdue ? 'text-red-600' : ''}">${item.dueDate}</b></span>
             </div>
-            <div class="flex gap-2 pt-1 border-t">
+
+            <!-- Action Buttons: PDF Chudu, Reminder, Returned -->
+            <div class="flex flex-wrap gap-1.5 pt-1 border-t">
+              ${item.pdfData ? `
+                <button onclick="viewSavedPdf(${item.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-2 py-1.5 rounded-lg text-center flex items-center gap-1">
+                  <i class="fas fa-eye text-indigo-600"></i> PDF చూడు
+                </button>
+              ` : ''}
+
               ${item.status === 'PENDING' ? `
                 <button onclick="sendReminder('${item.phone}', '${item.name}', '${item.docName}', '${item.dueDate}')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
-                  🔔 రిమైండ్ పంపు
+                  🔔 రిమైండ్
                 </button>
                 <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">
-                  ✓ రిటర్న్ వచ్చింది
+                  ✓ రిటర్న్
                 </button>
-              ` : '<span class="flex-1 text-slate-400 py-1 text-center font-bold">పూర్తయింది</span>'}
-              <button onclick="deleteRecord(${item.id})" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg">
+              ` : '<span class="flex-1 text-slate-400 py-1.5 text-center font-bold">పూర్తయింది</span>'}
+
+              <button onclick="deleteRecord(${item.id})" class="px-2.5 py-1.5 bg-slate-200 text-slate-600 rounded-lg hover:text-red-600">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
