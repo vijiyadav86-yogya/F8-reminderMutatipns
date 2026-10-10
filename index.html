@@ -3,166 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>F-8 Mutation & PDF Reminder</title>
+  <title>F-8 Mutation Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-100 min-h-screen p-4 text-slate-800">
-  <div class="max-w-4xl mx-auto space-y-6">
-    <div class="bg-indigo-700 text-white p-6 rounded-2xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<body class="bg-slate-100 min-h-screen p-3 text-slate-800">
+  <div class="max-w-md mx-auto space-y-4">
+    <!-- Header -->
+    <div class="bg-indigo-700 text-white p-5 rounded-2xl shadow flex justify-between items-center">
       <div>
-        <h1 class="text-2xl font-bold">📄 F-8 / PDF రిమైండర్ ట్రాకర్</h1>
-        <p class="text-indigo-200 text-sm mt-1">15 రోజుల గడువు & వాట్సాప్ రిమైండర్</p>
+        <h1 class="text-xl font-bold">📄 F-8 రిమైండర్ ట్రాకర్</h1>
+        <p class="text-indigo-200 text-xs">15 రోజుల గడువు ట్రాకింగ్</p>
       </div>
-      <button onclick="checkReminders()" class="bg-amber-500 hover:bg-amber-600 text-white font-medium px-4 py-2 rounded-xl text-sm shadow">
-        🔔 చెక్ రిమైండర్స్ (Delay Check)
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white p-5 rounded-2xl shadow border border-slate-200 space-y-3">
+      <h2 class="text-base font-bold text-slate-700">కొత్త ఎంట్రీ & వాట్సాప్ షేర్</h2>
+      
+      <div>
+        <label class="block text-xs font-semibold mb-1 text-slate-600">గ్రహీత పేరు</label>
+        <input type="text" id="name" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: రాము">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold mb-1 text-slate-600">WhatsApp నంబర్ (10 అంకెలు)</label>
+        <input type="number" id="phone" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="9876543210">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold mb-1 text-slate-600">డాక్యుమెంట్ / F-8 నంబర్</label>
+        <input type="text" id="docName" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 Mutation Report">
+      </div>
+
+      <button type="button" onclick="handleSend()" class="w-full bg-emerald-600 active:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm shadow">
+        📲 వాట్సాప్‌లో పంపు & సేవ్ చేయి
       </button>
     </div>
 
-    <!-- Upload Form -->
-    <div class="bg-white p-6 rounded-2xl shadow border border-slate-200">
-      <h2 class="text-lg font-bold mb-4 text-slate-700">కొత్త PDF ఎంట్రీ & వాట్సాప్ షేర్</h2>
-      <form id="docForm" onsubmit="saveEntry(event)" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-semibold mb-1">గ్రహీత పేరు (Person Name)</label>
-            <input type="text" id="name" required class="w-full border rounded-xl p-2.5 outline-none focus:border-indigo-600" placeholder="ఉదా: రాము">
-          </div>
-          <div>
-            <label class="block text-sm font-semibold mb-1">WhatsApp నంబర్ (10 అంకెలు)</label>
-            <input type="tel" id="phone" pattern="[0-9]{10}" maxlength="10" required class="w-full border rounded-xl p-2.5 outline-none focus:border-indigo-600" placeholder="9876543210">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-semibold mb-1">డాక్యుమెంట్ పేరు / F-8 నంబర్</label>
-            <input type="text" id="docName" required class="w-full border rounded-xl p-2.5 outline-none focus:border-indigo-600" placeholder="ఉదా: F-8 Mutation Report">
-          </div>
-          <div>
-            <label class="block text-sm font-semibold mb-1">PDF డాక్యుమెంట్ ఎంచుకోండి</label>
-            <input type="file" id="file" accept=".pdf" class="w-full border rounded-xl p-2 text-sm text-slate-500 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700">
-          </div>
-        </div>
-
-        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2">
-          <i class="fab fa-whatsapp text-lg"></i> వాట్సాప్‌లో పంపు & ట్రాకింగ్ ప్రారంభించు
-        </button>
-      </form>
-    </div>
-
-    <!-- Records Table -->
-    <div class="bg-white p-6 rounded-2xl shadow border border-slate-200">
-      <h2 class="text-lg font-bold mb-4 text-slate-700">ట్రాకింగ్ రికార్డులు</h2>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead class="bg-slate-50 text-slate-600 border-b">
-            <tr>
-              <th class="p-3">పేరు</th>
-              <th class="p-3">ఫోన్</th>
-              <th class="p-3">పంపిన తేదీ</th>
-              <th class="p-3">గడువు తేదీ</th>
-              <th class="p-3">స్టేటస్</th>
-              <th class="p-3 text-right">యాక్షన్</th>
-            </tr>
-          </thead>
-          <tbody id="recordList" class="divide-y divide-slate-100">
-          </tbody>
-        </table>
+    <!-- Records -->
+    <div class="bg-white p-5 rounded-2xl shadow border border-slate-200">
+      <h2 class="text-base font-bold text-slate-700 mb-3">రికార్డుల లిస్ట్</h2>
+      <div id="recordList" class="space-y-3">
+        <!-- Records here -->
       </div>
     </div>
   </div>
 
   <script>
-    let entries = JSON.parse(localStorage.getItem('f8_records') || '[]');
+    function getEntries() {
+      return JSON.parse(localStorage.getItem('f8_records') || '[]');
+    }
 
-    function saveEntry(e) {
-      e.preventDefault();
+    function saveEntries(data) {
+      localStorage.setItem('f8_records', JSON.stringify(data));
+      render();
+    }
+
+    function handleSend() {
       const name = document.getElementById('name').value.trim();
       let phone = document.getElementById('phone').value.trim();
       const docName = document.getElementById('docName').value.trim();
+
+      if (!name || !phone || !docName) {
+        alert('దయచేసి పేరు, ఫోన్ నంబర్ మరియు డాక్యుమెంట్ పేరు నమోదు చేయండి!');
+        return;
+      }
+
+      if (phone.length < 10) {
+        alert('సరైన 10 అంకెల మొబైల్ నంబర్ ఇవ్వండి!');
+        return;
+      }
+
+      // ఫోన్ నంబర్ నుండి అనవసరమైన గుర్తులు తీసేయడం
+      phone = phone.replace(/[^0-9]/g, '');
+      if (phone.length === 10) {
+        phone = '91' + phone;
+      }
 
       const sentDate = new Date();
       const dueDate = new Date();
       dueDate.setDate(dueDate.getDate() + 15);
 
-      const newRecord = {
+      const record = {
         id: Date.now(),
         name,
         phone,
         docName,
-        sentDate: sentDate.toISOString().split('T')[0],
-        dueDate: dueDate.toISOString().split('T')[0],
+        sentDate: sentDate.toLocaleDateString('en-GB'),
+        dueDate: dueDate.toLocaleDateString('en-GB'),
+        dueTime: dueDate.getTime(),
         status: 'PENDING'
       };
 
-      entries.push(newRecord);
-      localStorage.setItem('f8_records', JSON.stringify(entries));
-      render();
+      const list = getEntries();
+      list.unshift(record);
+      saveEntries(list);
 
+      // ఫీల్డ్స్ క్లియర్ చేయడం
+      document.getElementById('name').value = '';
+      document.getElementById('phone').value = '';
+      document.getElementById('docName').value = '';
+
+      // వాట్సాప్ లింక్ ఓపెన్ చేయడం
       const text = `నమస్కారం ${name} గారు, మీకు ${docName} పంపడం జరిగినది. దయచేసి విచారించి 15 రోజుల్లోగా రిపోర్ట్ ఇవ్వగలరు.`;
-      const waUrl = `https://api.whatsapp.com/send?phone=91${phone}&text=${encodeURIComponent(text)}`;
+      const url = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(text)}`;
       
-      document.getElementById('docForm').reset();
-      // Brave బ్రౌజర్ పాప్-అప్ ఆపకుండా నేరుగా వాట్సాప్ రీడైరెక్ట్ చేయడానికి
-      window.location.href = waUrl;
+      // WhatsApp యాప్‌ని నేరుగా ఓపెన్ చేస్తుంది
+      window.location.href = url;
     }
 
     function markReturned(id) {
-      entries = entries.map(item => item.id === id ? { ...item, status: 'RETURNED' } : item);
-      localStorage.setItem('f8_records', JSON.stringify(entries));
-      render();
+      const list = getEntries().map(item => item.id === id ? { ...item, status: 'RETURNED' } : item);
+      saveEntries(list);
     }
 
-    function sendSingleReminder(phone, name, docName) {
+    function sendReminder(phone, name, docName) {
       const text = `రిమైండర్: ${name} గారు, మీరు ఇవ్వాల్సిన ${docName} గడువు 15 రోజులు ముగిసింది. దయచేసి ఆలస్యం చేయకుండా వెంటనే రిపోర్ట్ ఇవ్వండి.`;
-      window.location.href = `https://api.whatsapp.com/send?phone=91${phone}&text=${encodeURIComponent(text)}`;
-    }
-
-    function checkReminders() {
-      const today = new Date().toISOString().split('T')[0];
-      const overdue = entries.filter(e => e.status === 'PENDING' && e.dueDate <= today);
-      if (overdue.length === 0) {
-        alert('ప్రస్తుతం గడువు ముగిసిన (Overdue) ఫైల్స్ ఏమీ లేవు!');
-        return;
-      }
-      // మొదటి ఓవర్‌డ్యూ ఉన్న వ్యక్తికి వాట్సాప్ ఓపెన్ అవుతుంది
-      sendSingleReminder(overdue[0].phone, overdue[0].name, overdue[0].docName);
+      window.location.href = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(text)}`;
     }
 
     function render() {
-      const tbody = document.getElementById('recordList');
-      const today = new Date().toISOString().split('T')[0];
-      if (entries.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">ఇంకా ఎలాంటి రికార్డులు లేవు.</td></tr>';
+      const list = getEntries();
+      const container = document.getElementById('recordList');
+      const now = Date.now();
+
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">ఇంకా ఎలాంటి రికార్డులు లేవు.</p>';
         return;
       }
-      tbody.innerHTML = entries.map(item => {
-        let isOverdue = item.status === 'PENDING' && item.dueDate <= today;
-        let badge = item.status === 'RETURNED' 
-          ? '<span class="bg-green-100 text-green-700 px-2.5 py-1 rounded-full text-xs font-semibold">Returned</span>'
-          : isOverdue 
-            ? '<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold">Overdue (Delay)</span>'
-            : '<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-xs font-semibold">Pending</span>';
 
+      container.innerHTML = list.map(item => {
+        const isOverdue = item.status === 'PENDING' && now > item.dueTime;
         return `
-          <tr class="hover:bg-slate-50">
-            <td class="p-3 font-semibold">${item.name}</td>
-            <td class="p-3">${item.phone}</td>
-            <td class="p-3 text-slate-500">${item.sentDate}</td>
-            <td class="p-3 text-slate-500">${item.dueDate}</td>
-            <td class="p-3">${badge}</td>
-            <td class="p-3 text-right space-x-1">
-              ${item.status === 'PENDING' ? `
-                <button onclick="sendSingleReminder('${item.phone}', '${item.name}', '${item.docName}')" class="bg-amber-500 hover:bg-amber-600 text-white text-xs px-2.5 py-1.5 rounded-lg font-medium shadow-sm">
-                  రిమైండ్
+          <div class="border rounded-xl p-3 bg-slate-50 space-y-2 text-xs">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-bold text-sm text-slate-800">${item.name}</p>
+                <p class="text-slate-500 font-mono">${item.phone}</p>
+                <p class="text-indigo-600 font-medium mt-0.5">${item.docName}</p>
+              </div>
+              <div>
+                ${item.status === 'RETURNED' 
+                  ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">Returned</span>' 
+                  : isOverdue 
+                    ? '<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">Overdue (Delay)</span>' 
+                    : '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">Pending</span>'}
+              </div>
+            </div>
+
+            <div class="flex justify-between text-slate-500 border-t pt-2">
+              <span>పంపినది: <b>${item.sentDate}</b></span>
+              <span>గడువు: <b>${item.dueDate}</b></span>
+            </div>
+
+            ${item.status === 'PENDING' ? `
+              <div class="flex gap-2 pt-1">
+                <button onclick="sendReminder('${item.phone}', '${item.name}', '${item.docName}')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center">
+                  🔔 రిమైండ్
                 </button>
-                <button onclick="markReturned(${item.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-2.5 py-1.5 rounded-lg font-medium shadow-sm">
-                  ✓ రిటర్న్
+                <button onclick="markReturned(${item.id})" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center">
+                  ✓ రిటర్న్ వచ్చింది
                 </button>
-              ` : '<span class="text-xs text-slate-400 font-medium">పూర్తయింది</span>'}
-            </td>
-          </tr>
+              </div>
+            ` : ''}
+          </div>
         `;
       }).join('');
     }
