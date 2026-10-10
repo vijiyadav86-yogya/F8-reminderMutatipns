@@ -94,10 +94,10 @@
           <select id="daysSelect" onchange="updateDateByDays()" class="w-full border rounded-lg p-2 text-xs bg-white outline-none">
             <option value="1">1 రోజు</option>
             <option value="2">2 రోజులు</option>
-            <option value="3" selected>3 రోజులు</option>
+            <option value="3">3 రోజులు</option>
             <option value="7">7 రోజులు</option>
             <option value="15">15 రోజులు</option>
-            <option value="30">30 రోజులు</option>
+            <option value="30" selected>30 రోజులు</option>
           </select>
         </div>
         <div>
@@ -139,7 +139,7 @@
 
     // Contact Picker
     async function pickContact() {
-      if ('contacts' in navigator && 'ContactsManager' in window) {
+      if (navigator.contacts && navigator.contacts.select) {
         try {
           var contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
           if (contacts && contacts.length > 0) {
@@ -154,7 +154,7 @@
             updateNoticeText();
           }
         } catch (ex) {
-          console.log(ex);
+          console.log('Picker error/dismissed:', ex);
         }
       } else {
         alert('మీ బ్రౌజర్ డైరెక్ట్ కాంటాక్ట్ సెలెక్షన్‌కు అనుమతించట్లేదు. దయచేసి వివరాలు నేరుగా టైప్ చేయండి.');
@@ -181,7 +181,7 @@
 
     // Days to Date calculation
     function updateDateByDays() {
-      var days = parseInt(document.getElementById('daysSelect').value, 10) || 3;
+      var days = parseInt(document.getElementById('daysSelect').value, 10) || 30;
       var d = new Date();
       d.setDate(d.getDate() + days);
       var dd = String(d.getDate()).padStart(2, '0');
@@ -208,7 +208,7 @@
       var name = document.getElementById('name').value.trim() || '[గ్రహీత పేరు]';
       var doc = document.getElementById('docName').value.trim() || '[రిఫరెన్స్ వివరాలు]';
       var dateVal = document.getElementById('dueDateField').value.trim();
-      var days = document.getElementById('daysSelect').value || '3';
+      var days = document.getElementById('daysSelect').value || '30';
 
       var catText = category ? ' (' + category + ')' : '';
 
@@ -294,7 +294,7 @@
         fileType: fileType,
         sentDate: sentDateFormatted,
         dueDate: dueDateVal,
-        daysAllowed: document.getElementById('daysSelect').value || '3',
+        daysAllowed: document.getElementById('daysSelect').value || '30',
         status: 'PENDING'
       };
 
@@ -307,7 +307,7 @@
       document.getElementById('docName').value = '';
       document.getElementById('categorySelect').value = '';
       removeFile();
-      document.getElementById('daysSelect').value = '3';
+      document.getElementById('daysSelect').value = '30';
       updateDateByDays();
 
       if (pickedFile && navigator.canShare && navigator.canShare({ files: [pickedFile] })) {
@@ -395,4 +395,4 @@
             '<div class="flex flex-wrap gap-1.5 pt-1 border-t">' +
               (item.fileData ? ('<button onclick="viewAttachment(' + item.id + ')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-2.5 py-1.5 rounded-lg text-center flex items-center gap-1"><i class="fas ' + (item.fileType === 'IMAGE' ? 'fa-image text-emerald-600' : 'fa-eye text-indigo-600') + '"></i> ' + (item.fileType === 'IMAGE' ? 'ఫోటో చూడు' : 'PDF చూడు') + '</button>') : '') +
               (item.status === 'PENDING' ? ('<button onclick="sendReminder(\'' + item.phone + '\', \'' + item.name + '\', \'' + item.docName + '\', \'' + item.dueDate + '\', \'' + (item.category || 'Mutations') + '\')" class="flex-1 bg-amber-500 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">🔔 రిమైండ్</button><button onclick="markReturned(' + item.id + ')" class="flex-1 bg-emerald-600 text-white font-bold py-1.5 rounded-lg text-center shadow-sm">✓ రిటర్న్</button>') : '<span class="flex-1 text-slate-400 py-1.5 text-center font-bold">పూర్తయింది</span>') +
-              '<button onclick="deleteRecord(' + item.id + '
+              '<button onclick="dele
