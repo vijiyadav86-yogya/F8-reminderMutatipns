@@ -86,7 +86,7 @@
         </div>
       </div>
 
-      <!-- Due Date Selection -->
+      <!-- Due Date Selection (Direct Fixed Value in HTML) -->
       <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
         <div>
           <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు రోజులు</label>
@@ -100,14 +100,24 @@
         </div>
         <div>
           <label class="block text-[11px] font-bold text-slate-700 mb-1">గడువు తేదీ (Due Date)</label>
-          <input type="date" id="dueDateInput" oninput="onDateInputManual()" onchange="onDateInputManual()" class="w-full border rounded-lg p-1.5 text-xs bg-white font-semibold outline-none focus:border-indigo-600">
+          <input type="date" id="dueDateInput" value="2026-10-17" oninput="onDateInputManual()" onchange="onDateInputManual()" class="w-full border rounded-lg p-1.5 text-xs bg-white font-semibold outline-none focus:border-indigo-600">
         </div>
       </div>
 
       <!-- Message Preview Box -->
       <div>
         <label class="block text-xs font-semibold mb-1 text-slate-600">అధికారిక నోటీస్ మెసేజ్ ప్రివ్యూ:</label>
-        <textarea id="customMsg" rows="6" class="w-full border rounded-xl p-2.5 text-xs font-sans text-slate-700 bg-slate-50 leading-relaxed outline-none" readonly></textarea>
+        <textarea id="customMsg" rows="6" class="w-full border rounded-xl p-2.5 text-xs font-sans text-slate-700 bg-slate-50 leading-relaxed outline-none" readonly>*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*
+
+నమస్కారం [గ్రహీత పేరు] గారు,
+
+మీకు *[రిఫరెన్స్ వివరాలు]* సంబంధించిన (Mutations) ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.
+
+దయచేసి దీనిని విచారించి *7 రోజుల్లోగా* (చివరి తేదీ: *17/10/2026*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.
+
+ఇట్లు,
+*తహసీల్దార్ కార్యాలయం,*
+*పెద్దవడుగూరు.*</textarea>
       </div>
 
       <button type="button" onclick="sendWhatsAppNotice()" class="w-full bg-emerald-600 active:bg-emerald-700 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-sm shadow flex items-center justify-center gap-2">
@@ -147,40 +157,18 @@
       document.getElementById('fileBadge').classList.add('hidden');
     }
 
-    // మొబైల్ బ్రౌజర్లలో కచ్చితమైన YYYY-MM-DD ఫార్మాట్ తయారు చేసే ఫంక్షన్
-    function getFormattedDate(daysOffset) {
-      const now = new Date();
-      now.setDate(now.getDate() + Number(daysOffset));
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
-
     function applyDays() {
-      const days = document.getElementById('daysSelect').value || 7;
-      document.getElementById('dueDateInput').value = getFormattedDate(days);
+      const days = Number(document.getElementById('daysSelect').value) || 7;
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      document.getElementById('dueDateInput').value = `${yyyy}-${mm}-${dd}`;
       syncMsg();
     }
 
     function onDateInputManual() {
-      const dateVal = document.getElementById('dueDateInput').value;
-      if (dateVal) {
-        const parts = dateVal.split('-');
-        if (parts.length === 3) {
-          const target = new Date(parts[0], parts[1] - 1, parts[2]);
-          const now = new Date();
-          now.setHours(0,0,0,0);
-          target.setHours(0,0,0,0);
-          const diff = Math.round((target - now) / (1000 * 60 * 60 * 24));
-          if (diff > 0) {
-            const selectEl = document.getElementById('daysSelect');
-            if (['1','2','7','15','30'].includes(String(diff))) {
-              selectEl.value = String(diff);
-            }
-          }
-        }
-      }
       syncMsg();
     }
 
@@ -190,7 +178,7 @@
       const doc = document.getElementById('docName').value.trim() || '[రిఫరెన్స్ వివరాలు]';
       const dateVal = document.getElementById('dueDateInput').value;
 
-      let dateFormatted = '';
+      let dateFormatted = '17/10/2026';
       let days = document.getElementById('daysSelect').value || '7';
 
       if (dateVal) {
@@ -206,7 +194,7 @@
         }
       }
 
-      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${doc}* సంబంధించిన (${category}) ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${days} రోజుల్లోగా* ${dateFormatted ? `(చివరి తేదీ: *${dateFormatted}*) ` : ''}మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
+      const text = `*తహసీల్దార్ కార్యాలయం, పెద్దవడుగూరు (Tahsildar Office, Peddavaduguru)*\n\nనమస్కారం ${name} గారు,\n\nమీకు *${doc}* సంబంధించిన (${category}) ఫైల్ పరిశీలన నిమిత్తం పంపడమైనది.\n\nదయచేసి దీనిని విచారించి *${days} రోజుల్లోగా* (చివరి తేదీ: *${dateFormatted}*) మీ నివేదికను (Report) కార్యాలయానికి సమర్పించగలరు.\n\nఇట్లు,\n*తహసీల్దార్ కార్యాలయం,*\n*పెద్దవడుగూరు.*`;
 
       document.getElementById('customMsg').value = text;
     }
@@ -417,4 +405,12 @@
     async function pickContact() {
       if ('contacts' in navigator && 'ContactsManager' in window) {
         try {
-          const co
+          const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
+          if (contacts.length > 0) {
+            if (contacts[0].name?.[0]) document.getElementById('name').value = contacts[0].name[0];
+            if (contacts[0].tel?.[0]) {
+              let clean = contacts[0].tel[0].replace(/[^0-9]/g, '');
+              if (clean.length > 10) clean = clean.slice(-10);
+              document.getElementById('phone').value = clean;
+            }
+    
